@@ -51,10 +51,7 @@ struct SubscriptionCardView: View {
     }
     
     private var backgroundColor: Color {
-        if let hex = subscription.customColor {
-            return Color(hex: hex)
-        }
-        return AppColors.categoryColor(for: subscription.category)
+        AppColors.categoryColor(for: subscription.category)
     }
     
     private var percentageOfTotal: Int {

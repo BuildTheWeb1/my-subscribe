@@ -19,6 +19,7 @@ enum AppColors {
     static let cardLavender = Color(hex: "E8E4F4")
     static let cardMint = Color(hex: "D4F5F3")
     static let cardPeach = Color(hex: "FDEAE8")
+    static let lightPeach = Color(hex: "fff5eb")
     static let cardYellow = Color(hex: "FDF6E3")
     static let cardGreen = Color(hex: "E8F5E9")
     static let cardBlue = Color(hex: "E3F2FD")
@@ -51,18 +52,28 @@ enum AppColors {
     static let textPrimary = Color(hex: "1A1A1A")
     static let textSecondary = Color(hex: "6B7280")
     
-    // MARK: - Category Colors
+    // MARK: - Category Colors (unique color per category)
+    static let categoryStreaming = Color(hex: "FDEAE8")   // Soft peach/coral
+    static let categorySoftware = Color(hex: "E8E4F4")    // Soft lavender
+    static let categoryFitness = Color(hex: "D4F5F3")     // Soft mint/teal
+    static let categoryProductivity = Color(hex: "E3F2FD") // Soft blue
+    static let categoryGaming = Color(hex: "F3E5F5")      // Soft purple
+    static let categoryMusic = Color(hex: "E8F5E9")       // Soft green
+    static let categoryNews = Color(hex: "FDF6E3")        // Soft yellow
+    static let categoryCloud = Color(hex: "E0F7FA")       // Soft cyan
+    static let categoryOther = Color(hex: "FFF3E0")       // Soft orange
+    
     static func categoryColor(for category: SubscriptionCategory) -> Color {
         switch category {
-        case .streaming: return cardPeach
-        case .software: return cardLavender
-        case .fitness: return cardMint
-        case .productivity: return cardBlue
-        case .gaming: return cardPurple
-        case .music: return cardGreen
-        case .news: return cardYellow
-        case .cloud: return cardBlue
-        case .other: return cardOrange
+        case .streaming: return categoryStreaming
+        case .software: return categorySoftware
+        case .fitness: return categoryFitness
+        case .productivity: return categoryProductivity
+        case .gaming: return categoryGaming
+        case .music: return categoryMusic
+        case .news: return categoryNews
+        case .cloud: return categoryCloud
+        case .other: return categoryOther
         }
     }
     

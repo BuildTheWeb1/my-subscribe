@@ -15,7 +15,6 @@ struct AddSubscriptionView: View {
     @State private var costString = ""
     @State private var billingCycle: Subscription.BillingCycle = .monthly
     @State private var category: SubscriptionCategory = .other
-    @State private var selectedColorIndex: Int = 0
     @State private var startDate = Date()
     
     private var isValid: Bool {
@@ -25,75 +24,78 @@ struct AddSubscriptionView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Service Name", text: $name)
-                        .textContentType(.organizationName)
-                    
-                    HStack {
-                        Text("$")
-                            .foregroundStyle(AppColors.textSecondary)
-                        TextField("0.00", text: $costString)
-                            .keyboardType(.decimalPad)
+            ScrollView {
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        InputRow(icon: "tag.fill", title: "Service") {
+                            TextField("Enter name", text: $name)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        
+                        Divider()
+                            .padding(.leading, 40)
+                            .padding(.trailing, 40)
+                        
+                        InputRow(icon: "dollarsign.circle.fill", title: "Amount") {
+                            TextField("0.00", text: $costString)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                        }
                     }
-                } header: {
-                    Text("Subscription Details")
-                }
-                
-                Section {
-                    Picker("Billing Cycle", selection: $billingCycle) {
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    
+                    Text("Billing")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.black)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 24)
+                        .padding(.bottom, 12)
+                    
+                    Picker("", selection: $billingCycle) {
                         ForEach(Subscription.BillingCycle.allCases) { cycle in
                             Text(cycle.rawValue).tag(cycle)
                         }
                     }
                     .pickerStyle(.segmented)
-                } header: {
-                    Text("Billing")
-                }
-                
-                Section {
-                    Picker("Category", selection: $category) {
-                        ForEach(SubscriptionCategory.allCases) { cat in
-                            Label(cat.rawValue, systemImage: cat.systemIcon)
-                                .tag(cat)
+                    .padding(.horizontal, 20)
+                    
+                    VStack(spacing: 0) {
+                        InputRow(icon: category.systemIcon, title: "Category") {
+                            Picker("", selection: $category) {
+                                ForEach(SubscriptionCategory.allCases) { cat in
+                                    Label(cat.rawValue, systemImage: cat.systemIcon).tag(cat)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .tint(AppColors.textSecondary)
+                        }
+                        
+                        Divider()
+                            .padding(.leading, 40)
+                            .padding(.trailing, 40)
+                        
+                        InputRow(icon: "calendar", title: "Start Date") {
+                            DatePicker("", selection: $startDate, displayedComponents: .date)
+                                .labelsHidden()
                         }
                     }
-                } header: {
-                    Text("Category")
-                }
-                
-                Section {
-                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
-                } header: {
-                    Text("Start Date")
-                }
-                
-                Section {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 44))
-                    ], spacing: 12) {
-                        ForEach(Array(AppColors.presetColors.enumerated()), id: \.offset) { index, color in
-                            Circle()
-                                .fill(color)
-                                .frame(width: 44, height: 44)
-                                .overlay {
-                                    if selectedColorIndex == index {
-                                        Circle()
-                                            .strokeBorder(AppColors.textPrimary, lineWidth: 2)
-                                    }
-                                }
-                                .onTapGesture {
-                                    selectedColorIndex = index
-                                }
-                        }
-                    }
-                    .padding(.vertical, 8)
-                } header: {
-                    Text("Color")
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    
+                    Spacer(minLength: 40)
                 }
             }
+            .background(AppColors.lightPeach)
             .navigationTitle("Add Subscription")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(AppColors.lightPeach, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") {
@@ -112,24 +114,48 @@ struct AddSubscriptionView: View {
                 }
             }
         }
+        .presentationCornerRadius(50)
+        .presentationDragIndicator(.visible)
     }
     
     private func saveSubscription() {
         guard let cost = Decimal(string: costString), cost > 0 else { return }
-        
-        let colorHex = AppColors.presetColors[selectedColorIndex].toHex()
         
         let subscription = Subscription(
             name: name.trimmingCharacters(in: .whitespaces),
             cost: cost,
             billingCycle: billingCycle,
             category: category,
-            customColor: colorHex,
             startDate: startDate
         )
         
         store.addSubscription(subscription)
         dismiss()
+    }
+}
+
+struct InputRow<Content: View>: View {
+    let icon: String
+    let title: String
+    @ViewBuilder let content: () -> Content
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundStyle(AppColors.textSecondary)
+                .frame(width: 24)
+            
+            Text(title)
+                .font(.system(size: 16))
+                .foregroundStyle(Color.black)
+            
+            Spacer()
+            
+            content()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 24)
     }
 }
 
