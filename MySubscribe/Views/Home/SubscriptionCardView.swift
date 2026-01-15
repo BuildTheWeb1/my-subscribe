@@ -101,17 +101,16 @@ struct SubscriptionCardView: View {
                     .font(size.priceFont)
                     .foregroundStyle(AppColors.textPrimary)
                 
-                if size == .large || size == .medium {
-                    Text("~\(subscription.yearlyAmount.formattedAsShortCurrency)/yr")
-                        .font(.system(size: 12))
-                        .foregroundStyle(AppColors.textSecondary)
-                }
+                Text("~\(subscription.yearlyAmount.formattedAsShortCurrency)/yr")
+                    .font(.system(size: size == .small ? 10 : 12))
+                    .foregroundStyle(AppColors.textSecondary)
             }
         }
         .padding(size.padding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
     }
 }
 

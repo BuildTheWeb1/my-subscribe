@@ -7,143 +7,131 @@
 
 import SwiftUI
 
+struct ScrollFadeModifier: ViewModifier {
+    let index: Int
+    @State private var isVisible = false
+    
+    func body(content: Content) -> some View {
+        content
+            .opacity(isVisible ? 1 : 0)
+            .scaleEffect(isVisible ? 1 : 0.9)
+            .onAppear {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(index) * 0.05)) {
+                    isVisible = true
+                }
+            }
+            .onDisappear {
+                isVisible = false
+            }
+    }
+}
+
 struct SubscriptionGridView: View {
     let subscriptions: [Subscription]
     let totalMonthly: Decimal
     let onTap: (Subscription) -> Void
     let onDelete: (UUID) -> Void
     
-    private var sortedSubscriptions: [Subscription] {
-        subscriptions.sorted { $0.monthlyAmount > $1.monthlyAmount }
+    private let twoColumns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+    
+    private let threeColumns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+    
+    private var largeSubscriptions: [Subscription] {
+        subscriptions.filter { cardSize(for: $0) == .large }
+            .sorted { $0.monthlyAmount > $1.monthlyAmount }
+    }
+    
+    private var mediumSubscriptions: [Subscription] {
+        subscriptions.filter { cardSize(for: $0) == .medium }
+            .sorted { $0.monthlyAmount > $1.monthlyAmount }
+    }
+    
+    private var smallSubscriptions: [Subscription] {
+        subscriptions.filter { cardSize(for: $0) == .small }
+            .sorted { $0.monthlyAmount > $1.monthlyAmount }
     }
     
     var body: some View {
         if subscriptions.isEmpty {
             emptyStateView
         } else {
-            gridContent
+            VStack(spacing: 24) {
+                if !largeSubscriptions.isEmpty {
+                    gridSection(
+                        subscriptions: largeSubscriptions,
+                        columns: twoColumns,
+                        size: .large,
+                        height: 180,
+                        rowSpacing: 16,
+                        startIndex: 0
+                    )
+                }
+                
+                if !mediumSubscriptions.isEmpty {
+                    gridSection(
+                        subscriptions: mediumSubscriptions,
+                        columns: twoColumns,
+                        size: .medium,
+                        height: 140,
+                        rowSpacing: 16,
+                        startIndex: largeSubscriptions.count
+                    )
+                }
+                
+                if !smallSubscriptions.isEmpty {
+                    gridSection(
+                        subscriptions: smallSubscriptions,
+                        columns: threeColumns,
+                        size: .small,
+                        height: 110,
+                        rowSpacing: 12,
+                        startIndex: largeSubscriptions.count + mediumSubscriptions.count
+                    )
+                }
+            }
         }
     }
     
     @ViewBuilder
-    private var gridContent: some View {
-        let items = sortedSubscriptions
+    private func gridSection(
+        subscriptions: [Subscription],
+        columns: [GridItem],
+        size: SubscriptionCardView.CardSize,
+        height: CGFloat,
+        rowSpacing: CGFloat,
+        startIndex: Int
+    ) -> some View {
+        LazyVGrid(columns: columns, spacing: rowSpacing) {
+            ForEach(Array(subscriptions.enumerated()), id: \.element.id) { index, subscription in
+                cardButton(subscription, size: size, height: height)
+                    .modifier(ScrollFadeModifier(index: startIndex + index))
+            }
+        }
+    }
+    
+    private func cardSize(for subscription: Subscription) -> SubscriptionCardView.CardSize {
+        let percentage = totalMonthly > 0
+            ? Double(truncating: (subscription.monthlyAmount / totalMonthly * 100) as NSDecimalNumber)
+            : 0
         
-        VStack(spacing: 12) {
-            if items.count >= 1 {
-                firstRow(items: items)
-            }
-            
-            if items.count >= 4 {
-                secondRow(items: items)
-            }
-            
-            if items.count >= 7 {
-                thirdRow(items: items)
-            }
-            
-            if items.count >= 10 {
-                remainingRows(items: Array(items.dropFirst(9)))
-            }
+        if percentage >= 15 {
+            return .large
+        } else if percentage >= 6 {
+            return .medium
+        } else {
+            return .small
         }
     }
     
     @ViewBuilder
-    private func firstRow(items: [Subscription]) -> some View {
-        HStack(spacing: 12) {
-            if items.count >= 1 {
-                cardButton(items[0], size: .large)
-                    .frame(height: 220)
-            }
-            
-            if items.count >= 2 {
-                VStack(spacing: 12) {
-                    cardButton(items[1], size: .medium)
-                    
-                    if items.count >= 3 {
-                        cardButton(items[2], size: .medium)
-                    }
-                }
-                .frame(height: 220)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func secondRow(items: [Subscription]) -> some View {
-        HStack(spacing: 12) {
-            if items.count >= 4 {
-                VStack(spacing: 12) {
-                    cardButton(items[3], size: .medium)
-                    
-                    if items.count >= 6 {
-                        cardButton(items[5], size: .medium)
-                    }
-                }
-                .frame(height: 220)
-            }
-            
-            if items.count >= 5 {
-                VStack(spacing: 12) {
-                    cardButton(items[4], size: .medium)
-                    
-                    HStack(spacing: 12) {
-                        if items.count >= 7 {
-                            cardButton(items[6], size: .small)
-                        }
-                        if items.count >= 8 {
-                            cardButton(items[7], size: .small)
-                        }
-                    }
-                }
-                .frame(height: 220)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func thirdRow(items: [Subscription]) -> some View {
-        if items.count >= 9 {
-            HStack(spacing: 12) {
-                cardButton(items[8], size: .small)
-                
-                if items.count >= 10 {
-                    cardButton(items[9], size: .small)
-                }
-                
-                if items.count >= 11 {
-                    cardButton(items[10], size: .small)
-                }
-                
-                if items.count >= 12 {
-                    cardButton(items[11], size: .small)
-                }
-            }
-            .frame(height: 100)
-        }
-    }
-    
-    @ViewBuilder
-    private func remainingRows(items: [Subscription]) -> some View {
-        let columns = [
-            GridItem(.flexible(), spacing: 12),
-            GridItem(.flexible(), spacing: 12),
-            GridItem(.flexible(), spacing: 12),
-            GridItem(.flexible(), spacing: 12)
-        ]
-        
-        if items.count > 3 {
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(Array(items.dropFirst(3))) { subscription in
-                    cardButton(subscription, size: .small)
-                        .frame(height: 100)
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func cardButton(_ subscription: Subscription, size: SubscriptionCardView.CardSize) -> some View {
+    private func cardButton(_ subscription: Subscription, size: SubscriptionCardView.CardSize, height: CGFloat) -> some View {
         Button {
             onTap(subscription)
         } label: {
@@ -152,6 +140,7 @@ struct SubscriptionGridView: View {
                 totalMonthly: totalMonthly,
                 size: size
             )
+            .frame(height: height)
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -192,5 +181,5 @@ struct SubscriptionGridView: View {
         )
         .padding()
     }
-    .background(AppColors.background)
+    .background(Color.white)
 }

@@ -39,8 +39,10 @@ struct HomeView: View {
                     )
                 }
                 .padding(16)
+                .animation(.easeInOut(duration: 0.3), value: store.subscriptions.count)
             }
-            .background(AppColors.background)
+            .scrollIndicators(.hidden)
+            .background(Color.white)
             .navigationTitle("MySubscribe")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

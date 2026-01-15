@@ -10,20 +10,20 @@ import Foundation
 extension Decimal {
     var formattedAsCurrency: String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 2
         formatter.minimumFractionDigits = 2
-        return formatter.string(from: self as NSDecimalNumber) ?? "$0.00"
+        let number = formatter.string(from: self as NSDecimalNumber) ?? "0.00"
+        return "$\(number)"
     }
     
     var formattedAsShortCurrency: String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        formatter.maximumFractionDigits = self.isWholeNumber ? 0 : 2
-        formatter.minimumFractionDigits = self.isWholeNumber ? 0 : 2
-        return formatter.string(from: self as NSDecimalNumber) ?? "$0"
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = isWholeNumber ? 0 : 2
+        formatter.minimumFractionDigits = isWholeNumber ? 0 : 2
+        let number = formatter.string(from: self as NSDecimalNumber) ?? "0"
+        return "$\(number)"
     }
     
     private var isWholeNumber: Bool {
