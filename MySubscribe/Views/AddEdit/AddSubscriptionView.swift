@@ -16,6 +16,7 @@ struct AddSubscriptionView: View {
     @State private var billingCycle: Subscription.BillingCycle = .monthly
     @State private var category: SubscriptionCategory = .other
     @State private var selectedColorIndex: Int = 0
+    @State private var startDate = Date()
     
     private var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -62,6 +63,12 @@ struct AddSubscriptionView: View {
                 }
                 
                 Section {
+                    DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                } header: {
+                    Text("Start Date")
+                }
+                
+                Section {
                     LazyVGrid(columns: [
                         GridItem(.adaptive(minimum: 44))
                     ], spacing: 12) {
@@ -92,6 +99,7 @@ struct AddSubscriptionView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundStyle(Color.black)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -99,6 +107,7 @@ struct AddSubscriptionView: View {
                         saveSubscription()
                     }
                     .fontWeight(.semibold)
+                    .foregroundStyle(isValid ? Color.black : Color.gray)
                     .disabled(!isValid)
                 }
             }
@@ -115,7 +124,8 @@ struct AddSubscriptionView: View {
             cost: cost,
             billingCycle: billingCycle,
             category: category,
-            customColor: colorHex
+            customColor: colorHex,
+            startDate: startDate
         )
         
         store.addSubscription(subscription)

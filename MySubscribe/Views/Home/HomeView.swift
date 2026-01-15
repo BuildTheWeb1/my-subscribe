@@ -13,6 +13,9 @@ struct HomeView: View {
     @State private var selectedSubscription: Subscription?
     @State private var subscriptionToDelete: Subscription?
     @State private var showingDeleteAlert = false
+    #if DEBUG
+    @State private var showingDebugConsole = false
+    #endif
     
     var body: some View {
         NavigationStack {
@@ -45,13 +48,26 @@ struct HomeView: View {
             .background(Color.white)
 //            .navigationTitle("MySubscribe")
             .toolbar {
+                #if DEBUG
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingDebugConsole = true
+                    } label: {
+                        Image(systemName: "ladybug")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Color.black)
+                    }
+                    .accessibilityLabel("Debug console")
+                }
+                #endif
+                
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingAddSheet = true
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(AppColors.coral)
+                            .foregroundStyle(Color.black)
                     }
                     .accessibilityLabel("Add subscription")
                 }
@@ -82,6 +98,11 @@ struct HomeView: View {
                     Text("Are you sure you want to delete \(sub.name)?")
                 }
             }
+            #if DEBUG
+            .sheet(isPresented: $showingDebugConsole) {
+                DebugConsoleView(subscriptions: store.subscriptions)
+            }
+            #endif
         }
     }
 }

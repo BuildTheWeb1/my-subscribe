@@ -14,6 +14,7 @@ struct Subscription: Identifiable, Codable, Equatable {
     var billingCycle: BillingCycle
     var category: SubscriptionCategory
     var customColor: String?
+    var startDate: Date
     var createdAt: Date
     var updatedAt: Date
     
@@ -24,6 +25,7 @@ struct Subscription: Identifiable, Codable, Equatable {
         billingCycle: BillingCycle = .monthly,
         category: SubscriptionCategory = .other,
         customColor: String? = nil,
+        startDate: Date = Date(),
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -33,6 +35,7 @@ struct Subscription: Identifiable, Codable, Equatable {
         self.billingCycle = billingCycle
         self.category = category
         self.customColor = customColor
+        self.startDate = startDate
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
