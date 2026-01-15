@@ -64,7 +64,7 @@ struct SubscriptionCardView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 2) {
             HStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
