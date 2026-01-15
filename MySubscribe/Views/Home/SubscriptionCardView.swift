@@ -64,7 +64,7 @@ struct SubscriptionCardView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
+                    RoundedRectangle(cornerRadius: 40)
                         .fill(Color.white.opacity(0.8))
                         .frame(width: size.iconSize, height: size.iconSize)
                     
@@ -106,7 +106,7 @@ struct SubscriptionCardView: View {
         .padding(size.padding)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
     }
 }
