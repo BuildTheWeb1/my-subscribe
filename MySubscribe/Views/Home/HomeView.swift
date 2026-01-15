@@ -24,7 +24,10 @@ struct HomeView: View {
                     HeaderView(
                         totalMonthly: store.totalMonthlySpending,
                         totalYearly: store.totalYearlyProjection,
-                        subscriptionCount: store.subscriptionCount
+                        subscriptionCount: store.subscriptionCount,
+                        onAddTapped: {
+                            showingAddSheet = true
+                        }
                     )
                     
                     SubscriptionGridView(
@@ -60,17 +63,6 @@ struct HomeView: View {
                     .accessibilityLabel("Debug console")
                 }
                 #endif
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingAddSheet = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(Color.black)
-                    }
-                    .accessibilityLabel("Add subscription")
-                }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddSubscriptionView(store: store)
