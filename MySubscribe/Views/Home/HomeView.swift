@@ -17,7 +17,13 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 20) {
+                    HeaderView(
+                        totalMonthly: store.totalMonthlySpending,
+                        totalYearly: store.totalYearlyProjection,
+                        subscriptionCount: store.subscriptionCount
+                    )
+                    
                     SubscriptionGridView(
                         subscriptions: store.subscriptions,
                         totalMonthly: store.totalMonthlySpending,
@@ -31,19 +37,13 @@ struct HomeView: View {
                             }
                         }
                     )
-                    
-                    HeaderView(
-                        totalMonthly: store.totalMonthlySpending,
-                        totalYearly: store.totalYearlyProjection,
-                        subscriptionCount: store.subscriptionCount
-                    )
                 }
                 .padding(16)
                 .animation(.easeInOut(duration: 0.3), value: store.subscriptions.count)
             }
             .scrollIndicators(.hidden)
             .background(Color.white)
-            .navigationTitle("MySubscribe")
+//            .navigationTitle("MySubscribe")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

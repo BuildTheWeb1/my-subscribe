@@ -13,39 +13,23 @@ struct HeaderView: View {
     let subscriptionCount: Int
     
     var body: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("TOTAL / MONTH")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(AppColors.textSecondary)
-                    .tracking(1)
-                
-                Text(totalMonthly.formattedAsCurrency)
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppColors.textPrimary)
-            }
+        VStack(spacing: 8) {
+            Text("Total Monthly")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(AppColors.textSecondary)
             
-            Spacer()
+            Text(totalMonthly.formattedAsCurrency)
+                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .foregroundStyle(AppColors.textPrimary)
             
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("YEARLY PROJECTION")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(AppColors.textSecondary)
-                    .tracking(1)
-                
-                Text(totalYearly.formattedAsCurrency)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppColors.coral)
-            }
+            Text("~\(totalYearly.formattedAsCurrency)/year")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(AppColors.textSecondary)
         }
-        .padding(20)
-        .background(
-            LinearGradient(
-                colors: [AppColors.mint.opacity(0.5), AppColors.skyBlue.opacity(0.3)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(Color(hex: "FEF3C7"))
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 }
