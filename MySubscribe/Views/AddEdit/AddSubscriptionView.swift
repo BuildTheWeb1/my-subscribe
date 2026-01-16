@@ -149,12 +149,12 @@ struct InputRow<Content: View>: View {
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
-                .font(.system(size: 20))
+                .font(.title3)
                 .foregroundStyle(AppColors.textSecondary)
                 .frame(width: 24)
             
             Text(title)
-                .font(.system(size: 16))
+                .font(.body)
                 .foregroundStyle(Color.black)
             
             Spacer()

@@ -65,8 +65,8 @@ struct SubscriptionDetailView: View {
                         .frame(width: 80, height: 80)
                     
                     Image(systemName: subscription.category.systemIcon)
-                        .font(.system(size: 36))
-                        .foregroundStyle(AppColors.textPrimary)
+                        .font(.title)
+                        .foregroundStyle(AppColors.textColor(for: backgroundColor))
                 }
                 
                 Text(subscription.name)
@@ -74,7 +74,7 @@ struct SubscriptionDetailView: View {
                     .foregroundStyle(AppColors.textPrimary)
                 
                 Text(subscription.monthlyAmount.formattedAsCurrency)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.largeTitle.bold())
                     .foregroundStyle(AppColors.textPrimary)
                 
                 Text(String(localized: "per month"))
