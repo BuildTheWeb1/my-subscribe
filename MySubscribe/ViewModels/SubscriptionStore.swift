@@ -82,7 +82,7 @@ final class SubscriptionStore {
     private func loadSubscriptions() {
         loadError = nil
         guard let data = UserDefaults.standard.data(forKey: storageKey) else {
-            subscriptions = Subscription.samples
+            subscriptions = []
             return
         }
         
