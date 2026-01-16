@@ -21,39 +21,45 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    HeaderView(
-                        totalMonthly: store.totalMonthlySpending,
-                        totalYearly: store.totalYearlyProjection,
-                        subscriptionCount: store.subscriptionCount,
-                        onAddTapped: {
-                            showingAddSheet = true
-                        }
-                    )
-                    
-                    SubscriptionGridView(
-                        subscriptions: store.subscriptions,
-                        totalMonthly: store.totalMonthlySpending,
-                        loadError: store.loadError,
-                        onTap: { subscription in
-                            selectedSubscription = subscription
-                        },
-                        onDelete: { id in
-                            if let sub = store.subscriptions.first(where: { $0.id == id }) {
-                                subscriptionToDelete = sub
-                                showingDeleteAlert = true
+            ZStack(alignment: .top) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Color.clear
+                            .frame(height: 220)
+                        
+                        SubscriptionGridView(
+                            subscriptions: store.subscriptions,
+                            totalMonthly: store.totalMonthlySpending,
+                            loadError: store.loadError,
+                            onTap: { subscription in
+                                selectedSubscription = subscription
+                            },
+                            onDelete: { id in
+                                if let sub = store.subscriptions.first(where: { $0.id == id }) {
+                                    subscriptionToDelete = sub
+                                    showingDeleteAlert = true
+                                }
+                            },
+                            onRetry: {
+                                store.retryLoad()
                             }
-                        },
-                        onRetry: {
-                            store.retryLoad()
-                        }
-                    )
+                        )
+                    }
+                    .padding(16)
+                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
                 }
-                .padding(16)
-                .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
+                .scrollIndicators(.hidden)
+                
+                HeaderView(
+                    totalMonthly: store.totalMonthlySpending,
+                    totalYearly: store.totalYearlyProjection,
+                    subscriptionCount: store.subscriptionCount,
+                    onAddTapped: {
+                        showingAddSheet = true
+                    }
+                )
+                .padding(.horizontal, 16)
             }
-            .scrollIndicators(.hidden)
             .background(Color.white)
 //            .navigationTitle("MySubscribe")
             .toolbar {
