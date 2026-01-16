@@ -28,6 +28,16 @@ enum AppColors {
     static let cardPurple = Color(hex: "F3E5F5")
     
     // MARK: - Gradient Backgrounds
+    static let cardGradientBlue = LinearGradient(
+        gradient: Gradient(stops: [
+        .init(color: Color(hex: "097CE0"), location: 0.0),  // top-left
+        .init(color: Color(hex: "0938E0"), location: 0.5),  // middle
+        .init(color: Color(hex: "097CE0"), location: 1.0)   // bottom-right
+        ]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
     static let cardGradientLavender = LinearGradient(
         colors: [Color(hex: "E8E4F4"), Color(hex: "D4F5F3")],
         startPoint: .topLeading,

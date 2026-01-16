@@ -64,7 +64,7 @@ struct HeaderView: View {
             .padding(.top, 40)
             .padding(.bottom, 60)
             .padding(.horizontal, 20)
-            .background(Color(hex: "272533"))
+            .background(AppColors.cardGradientBlue)
             .clipShape(CurvedBottomShape())
             .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
             
@@ -75,7 +75,7 @@ struct HeaderView: View {
             } label: {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(AppColors.categoryMusic)
+                        .fill(AppColors.categoryFitness)
                         .frame(width: 70, height: 70)
                         .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                     

@@ -192,9 +192,13 @@ struct SubscriptionDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button(String(localized: "Cancel")) {
+                Button {
                     resetFields()
                     isEditing = false
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(AppColors.textSecondary)
                 }
             }
             

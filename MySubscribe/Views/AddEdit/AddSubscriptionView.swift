@@ -104,10 +104,13 @@ struct AddSubscriptionView: View {
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(String(localized: "Cancel")) {
+                    Button {
                         dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(AppColors.textSecondary)
                     }
-                    .foregroundStyle(Color.black)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -120,7 +123,7 @@ struct AddSubscriptionView: View {
                 }
             }
         }
-        .presentationCornerRadius(50)
+        .presentationCornerRadius(20)
         .presentationDragIndicator(.visible)
     }
     
