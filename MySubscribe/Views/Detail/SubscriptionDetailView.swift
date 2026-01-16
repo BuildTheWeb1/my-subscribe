@@ -17,7 +17,6 @@ struct SubscriptionDetailView: View {
     @State private var costString: String
     @State private var billingCycle: Subscription.BillingCycle
     @State private var category: SubscriptionCategory
-    @State private var selectedColorIndex: Int
     @State private var isEditing = false
     @State private var showingDeleteAlert = false
     
@@ -28,11 +27,6 @@ struct SubscriptionDetailView: View {
         _costString = State(initialValue: "\(subscription.cost)")
         _billingCycle = State(initialValue: subscription.billingCycle)
         _category = State(initialValue: subscription.category)
-        
-        let colorIndex = AppColors.presetColors.firstIndex { color in
-            color.toHex() == subscription.customColor
-        } ?? 0
-        _selectedColorIndex = State(initialValue: colorIndex)
     }
     
     private var isValid: Bool {
@@ -88,7 +82,8 @@ struct SubscriptionDetailView: View {
                 detailRow(title: "Billing Cycle", value: subscription.billingCycle.rawValue)
                 detailRow(title: "Category", value: subscription.category.rawValue)
                 detailRow(title: "Yearly Cost", value: subscription.yearlyAmount.formattedAsCurrency)
-                detailRow(title: "Added", value: subscription.createdAt.formatted(date: .abbreviated, time: .omitted))
+                detailRow(title: "Paid So Far", value: subscription.paidSoFar.formattedAsCurrency)
+                detailRow(title: "Started", value: subscription.startDate.formatted(date: .abbreviated, time: .omitted))
             }
             .padding(20)
             .background(Color(.secondarySystemBackground))
@@ -184,30 +179,6 @@ struct SubscriptionDetailView: View {
             } header: {
                 Text("Category")
             }
-            
-            Section {
-                LazyVGrid(columns: [
-                    GridItem(.adaptive(minimum: 44))
-                ], spacing: 12) {
-                    ForEach(Array(AppColors.presetColors.enumerated()), id: \.offset) { index, color in
-                        Circle()
-                            .fill(color)
-                            .frame(width: 44, height: 44)
-                            .overlay {
-                                if selectedColorIndex == index {
-                                    Circle()
-                                        .strokeBorder(AppColors.textPrimary, lineWidth: 2)
-                                }
-                            }
-                            .onTapGesture {
-                                selectedColorIndex = index
-                            }
-                    }
-                }
-                .padding(.vertical, 8)
-            } header: {
-                Text("Color")
-            }
         }
         .navigationTitle("Edit")
         .navigationBarTitleDisplayMode(.inline)
@@ -239,15 +210,13 @@ struct SubscriptionDetailView: View {
     private func saveChanges() {
         guard let cost = Decimal(string: costString), cost > 0 else { return }
         
-        let colorHex = AppColors.presetColors[selectedColorIndex].toHex()
-        
         let updated = Subscription(
             id: subscription.id,
             name: name.trimmingCharacters(in: .whitespaces),
             cost: cost,
             billingCycle: billingCycle,
             category: category,
-            customColor: colorHex,
+            startDate: subscription.startDate,
             createdAt: subscription.createdAt,
             updatedAt: Date()
         )

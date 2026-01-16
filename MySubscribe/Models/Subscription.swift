@@ -68,6 +68,24 @@ struct Subscription: Identifiable, Codable, Equatable {
     var yearlyAmount: Decimal {
         monthlyAmount * 12
     }
+    
+    var paidSoFar: Decimal {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        guard startDate <= now else { return 0 }
+        
+        let components = calendar.dateComponents([.month], from: startDate, to: now)
+        let monthsPaid = max(1, (components.month ?? 0) + 1)
+        
+        switch billingCycle {
+        case .monthly:
+            return cost * Decimal(monthsPaid)
+        case .yearly:
+            let yearsPaid = (monthsPaid + 11) / 12
+            return cost * Decimal(yearsPaid)
+        }
+    }
 }
 
 // MARK: - Sample Data
