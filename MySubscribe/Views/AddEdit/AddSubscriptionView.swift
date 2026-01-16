@@ -19,7 +19,12 @@ struct AddSubscriptionView: View {
     
     private var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(string: costString) ?? 0) > 0
+        parseCost(costString) > 0
+    }
+    
+    private func parseCost(_ string: String) -> Decimal {
+        let normalized = string.replacingOccurrences(of: ",", with: ".")
+        return Decimal(string: normalized) ?? 0
     }
     
     var body: some View {
@@ -29,7 +34,8 @@ struct AddSubscriptionView: View {
                     VStack(spacing: 0) {
                         InputRow(icon: "tag.fill", title: String(localized: "Service")) {
                             TextField(String(localized: "Enter name"), text: $name)
-                                .multilineTextAlignment(.trailing)
+                                .textInputAutocapitalization(.words)
+                                .autocorrectionDisabled()
                         }
                         
                         Divider()
@@ -39,7 +45,7 @@ struct AddSubscriptionView: View {
                         InputRow(icon: "dollarsign.circle.fill", title: String(localized: "Amount")) {
                             TextField("0.00", text: $costString)
                                 .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
+                                .autocorrectionDisabled()
                         }
                     }
                     .background(Color.white)
@@ -119,7 +125,8 @@ struct AddSubscriptionView: View {
     }
     
     private func saveSubscription() {
-        guard let cost = Decimal(string: costString), cost > 0 else { return }
+        let cost = parseCost(costString)
+        guard cost > 0 else { return }
         
         let subscription = Subscription(
             name: name.trimmingCharacters(in: .whitespaces),

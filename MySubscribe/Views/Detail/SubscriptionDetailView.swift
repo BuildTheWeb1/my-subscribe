@@ -31,7 +31,12 @@ struct SubscriptionDetailView: View {
     
     private var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (Decimal(string: costString) ?? 0) > 0
+        parseCost(costString) > 0
+    }
+    
+    private func parseCost(_ string: String) -> Decimal {
+        let normalized = string.replacingOccurrences(of: ",", with: ".")
+        return Decimal(string: normalized) ?? 0
     }
     
     private var backgroundColor: Color {
@@ -147,12 +152,15 @@ struct SubscriptionDetailView: View {
         Form {
             Section {
                 TextField(String(localized: "Service Name"), text: $name)
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled()
                 
                 HStack {
                     Text("$")
                         .foregroundStyle(AppColors.textSecondary)
                     TextField("0.00", text: $costString)
                         .keyboardType(.decimalPad)
+                        .autocorrectionDisabled()
                 }
             } header: {
                 Text(String(localized: "Subscription Details"))
@@ -208,7 +216,8 @@ struct SubscriptionDetailView: View {
     }
     
     private func saveChanges() {
-        guard let cost = Decimal(string: costString), cost > 0 else { return }
+        let cost = parseCost(costString)
+        guard cost > 0 else { return }
         
         let updated = Subscription(
             id: subscription.id,
