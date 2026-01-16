@@ -54,6 +54,14 @@ struct SubscriptionCardView: View {
         AppColors.categoryColor(for: subscription.category)
     }
     
+    private var textColor: Color {
+        AppColors.textColor(for: backgroundColor)
+    }
+    
+    private var secondaryTextColor: Color {
+        AppColors.secondaryTextColor(for: backgroundColor)
+    }
+    
     private var percentageOfTotal: Int {
         guard totalMonthly > 0 else { return 0 }
         let percentage = (subscription.monthlyAmount / totalMonthly) * 100
@@ -65,12 +73,12 @@ struct SubscriptionCardView: View {
             HStack {
                 ZStack {
                     RoundedRectangle(cornerRadius: 40)
-                        .fill(Color.white.opacity(0.8))
+                        .fill(Color.white.opacity(0.25))
                         .frame(width: size.iconSize, height: size.iconSize)
                     
                     Image(systemName: subscription.category.systemIcon)
                         .font(.system(size: size.iconSize * 0.5))
-                        .foregroundStyle(AppColors.textPrimary)
+                        .foregroundStyle(textColor)
                 }
                 
                 Spacer()
@@ -78,10 +86,10 @@ struct SubscriptionCardView: View {
                 if size != .small && percentageOfTotal > 0 {
                     Text("\(percentageOfTotal)%")
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(AppColors.textPrimary)
+                        .foregroundStyle(textColor)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.85))
+                        .background(Color.white.opacity(0.25))
                         .clipShape(Capsule())
                 }
             }
@@ -91,16 +99,16 @@ struct SubscriptionCardView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(subscription.name)
                     .font(size.nameFont)
-                    .foregroundStyle(AppColors.textPrimary)
+                    .foregroundStyle(textColor)
                     .lineLimit(1)
                 
                 Text(subscription.monthlyAmount.formattedAsShortCurrency)
                     .font(size.priceFont)
-                    .foregroundStyle(AppColors.textPrimary)
+                    .foregroundStyle(textColor)
                 
                 Text("~\(subscription.yearlyAmount.formattedAsShortCurrency)/yr")
                     .font(size == .small ? .caption2 : .caption)
-                    .foregroundStyle(AppColors.textSecondary)
+                    .foregroundStyle(secondaryTextColor)
             }
         }
         .padding(size.padding)

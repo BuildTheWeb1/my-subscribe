@@ -52,16 +52,16 @@ enum AppColors {
     static let textPrimary = Color(hex: "1A1A1A")
     static let textSecondary = Color(hex: "4B5563")
     
-    // MARK: - Category Colors (unique color per category)
-    static let categoryStreaming = Color(hex: "FDEAE8")   // Soft peach/coral
-    static let categorySoftware = Color(hex: "E8E4F4")    // Soft lavender
-    static let categoryFitness = Color(hex: "D4F5F3")     // Soft mint/teal
-    static let categoryProductivity = Color(hex: "E3F2FD") // Soft blue
-    static let categoryGaming = Color(hex: "F3E5F5")      // Soft purple
-    static let categoryMusic = Color(hex: "E8F5E9")       // Soft green
-    static let categoryNews = Color(hex: "FDF6E3")        // Soft yellow
-    static let categoryCloud = Color(hex: "E0F7FA")       // Soft cyan
-    static let categoryOther = Color(hex: "FFF3E0")       // Soft orange
+    // MARK: - Category Colors (vibrant palette)
+    static let categoryStreaming = Color(hex: "F52258")   // Red/Pink
+    static let categorySoftware = Color(hex: "097CE0")    // Blue
+    static let categoryFitness = Color(hex: "09E071")     // Green
+    static let categoryProductivity = Color(hex: "0938E0") // Deep Blue
+    static let categoryGaming = Color(hex: "F522D7")      // Magenta
+    static let categoryMusic = Color(hex: "09E0BA")       // Teal
+    static let categoryNews = Color(hex: "F58122")        // Orange
+    static let categoryCloud = Color(hex: "09C0E0")       // Cyan
+    static let categoryOther = Color(hex: "54CBE0")       // Light Cyan
     
     static func categoryColor(for category: SubscriptionCategory) -> Color {
         switch category {
@@ -75,6 +75,14 @@ enum AppColors {
         case .cloud: return categoryCloud
         case .other: return categoryOther
         }
+    }
+    
+    static func textColor(for backgroundColor: Color) -> Color {
+        backgroundColor.isLight ? textPrimary : .white
+    }
+    
+    static func secondaryTextColor(for backgroundColor: Color) -> Color {
+        backgroundColor.isLight ? textSecondary : .white.opacity(0.7)
     }
     
     // MARK: - Preset Card Colors
@@ -116,5 +124,14 @@ extension Color {
         let g = Int(components[1] * 255)
         let b = Int(components[2] * 255)
         return String(format: "%02X%02X%02X", r, g, b)
+    }
+    
+    var isLight: Bool {
+        guard let components = UIColor(self).cgColor.components else { return true }
+        let r = components[0]
+        let g = components.count > 1 ? components[1] : components[0]
+        let b = components.count > 2 ? components[2] : components[0]
+        let luminance = 0.299 * r + 0.587 * g + 0.114 * b
+        return luminance > 0.5
     }
 }

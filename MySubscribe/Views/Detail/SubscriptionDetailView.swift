@@ -104,8 +104,8 @@ struct SubscriptionDetailView: View {
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.red.opacity(0.1))
-                    .foregroundStyle(.red)
+                    .background(Color(hex: "F53722"))
+                    .foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             }
             .padding(.horizontal)

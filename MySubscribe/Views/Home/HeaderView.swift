@@ -60,21 +60,21 @@ struct HeaderView: View {
             VStack(spacing: 8) {
                 Text(String(localized: "Total Monthly"))
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(AppColors.textSecondary)
+                    .foregroundStyle(Color.white.opacity(0.8))
                 
                 Text(totalMonthly.formattedAsCurrency)
                     .font(.largeTitle.bold().width(.condensed))
-                    .foregroundStyle(AppColors.textPrimary)
+                    .foregroundStyle(Color.white)
                 
                 Text(String(localized: "~\(totalYearly.formattedAsCurrency)/year"))
                     .font(.callout.weight(.medium))
-                    .foregroundStyle(AppColors.textSecondary)
+                    .foregroundStyle(Color.white.opacity(0.8))
             }
             .frame(maxWidth: .infinity)
-            .padding(.top, 24)
+            .padding(.top, 40)
             .padding(.bottom, 60)
             .padding(.horizontal, 20)
-            .background(Color(hex: "FEF3C7"))
+            .background(Color(hex: "272533"))
             .clipShape(CurvedBottomShape())
             .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
             
@@ -85,17 +85,17 @@ struct HeaderView: View {
             } label: {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(AppColors.coral)
+                        .fill(AppColors.categoryMusic)
                         .frame(width: 70, height: 70)
-                        .shadow(color: AppColors.coral.opacity(0.4), radius: 8, x: 0, y: 4)
+                        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                     
                     Image(systemName: "plus")
                         .font(.system(size: 28, weight: .semibold))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color(hex: "272533"))
                 }
             }
             .accessibilityLabel(String(localized: "Add subscription"))
-            .offset(y: 35)
+            .offset(y: 40)
         }
         .padding(.bottom, 35)
     }

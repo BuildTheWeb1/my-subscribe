@@ -97,10 +97,10 @@ struct AddSubscriptionView: View {
                     Spacer(minLength: 40)
                 }
             }
-            .background(AppColors.lightPeach)
+            // .background(AppColors.lightPeach)
             .navigationTitle(String(localized: "Add Subscription"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(AppColors.lightPeach, for: .navigationBar)
+            // .toolbarBackground(AppColors.lightPeach, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
