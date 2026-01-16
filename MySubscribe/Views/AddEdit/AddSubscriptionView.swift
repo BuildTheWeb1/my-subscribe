@@ -27,8 +27,8 @@ struct AddSubscriptionView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
-                        InputRow(icon: "tag.fill", title: "Service") {
-                            TextField("Enter name", text: $name)
+                        InputRow(icon: "tag.fill", title: String(localized: "Service")) {
+                            TextField(String(localized: "Enter name"), text: $name)
                                 .multilineTextAlignment(.trailing)
                         }
                         
@@ -36,7 +36,7 @@ struct AddSubscriptionView: View {
                             .padding(.leading, 40)
                             .padding(.trailing, 40)
                         
-                        InputRow(icon: "dollarsign.circle.fill", title: "Amount") {
+                        InputRow(icon: "dollarsign.circle.fill", title: String(localized: "Amount")) {
                             TextField("0.00", text: $costString)
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
@@ -47,8 +47,8 @@ struct AddSubscriptionView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 24)
                     
-                    Text("Billing")
-                        .font(.system(size: 14, weight: .semibold))
+                    Text(String(localized: "Billing"))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.black)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
@@ -64,7 +64,7 @@ struct AddSubscriptionView: View {
                     .padding(.horizontal, 20)
                     
                     VStack(spacing: 0) {
-                        InputRow(icon: category.systemIcon, title: "Category") {
+                        InputRow(icon: category.systemIcon, title: String(localized: "Category")) {
                             Picker("", selection: $category) {
                                 ForEach(SubscriptionCategory.allCases) { cat in
                                     Label(cat.rawValue, systemImage: cat.systemIcon).tag(cat)
@@ -78,7 +78,7 @@ struct AddSubscriptionView: View {
                             .padding(.leading, 40)
                             .padding(.trailing, 40)
                         
-                        InputRow(icon: "calendar", title: "Start Date") {
+                        InputRow(icon: "calendar", title: String(localized: "Start Date")) {
                             DatePicker("", selection: $startDate, displayedComponents: .date)
                                 .labelsHidden()
                         }
@@ -92,20 +92,20 @@ struct AddSubscriptionView: View {
                 }
             }
             .background(AppColors.lightPeach)
-            .navigationTitle("Add Subscription")
+            .navigationTitle(String(localized: "Add Subscription"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(AppColors.lightPeach, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel")) {
                         dismiss()
                     }
                     .foregroundStyle(Color.black)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
+                    Button(String(localized: "Save")) {
                         saveSubscription()
                     }
                     .fontWeight(.semibold)

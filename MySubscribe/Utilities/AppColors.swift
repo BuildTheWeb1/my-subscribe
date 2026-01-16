@@ -50,7 +50,7 @@ enum AppColors {
     static let background = Color(hex: "F8F9FA")
     static let cardShadow = Color.black.opacity(0.08)
     static let textPrimary = Color(hex: "1A1A1A")
-    static let textSecondary = Color(hex: "6B7280")
+    static let textSecondary = Color(hex: "4B5563")
     
     // MARK: - Category Colors (unique color per category)
     static let categoryStreaming = Color(hex: "FDEAE8")   // Soft peach/coral

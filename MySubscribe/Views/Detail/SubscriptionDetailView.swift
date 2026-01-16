@@ -72,18 +72,18 @@ struct SubscriptionDetailView: View {
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("per month")
+                Text(String(localized: "per month"))
                     .font(.subheadline)
                     .foregroundStyle(AppColors.textSecondary)
             }
             .padding(.top, 32)
             
             VStack(spacing: 16) {
-                detailRow(title: "Billing Cycle", value: subscription.billingCycle.rawValue)
-                detailRow(title: "Category", value: subscription.category.rawValue)
-                detailRow(title: "Yearly Cost", value: subscription.yearlyAmount.formattedAsCurrency)
-                detailRow(title: "Paid So Far", value: subscription.paidSoFar.formattedAsCurrency)
-                detailRow(title: "Started", value: subscription.startDate.formatted(date: .abbreviated, time: .omitted))
+                detailRow(title: String(localized: "Billing Cycle"), value: subscription.billingCycle.rawValue)
+                detailRow(title: String(localized: "Category"), value: subscription.category.rawValue)
+                detailRow(title: String(localized: "Yearly Cost"), value: subscription.yearlyAmount.formattedAsCurrency)
+                detailRow(title: String(localized: "Paid So Far"), value: subscription.paidSoFar.formattedAsCurrency)
+                detailRow(title: String(localized: "Started"), value: subscription.startDate.formatted(date: .abbreviated, time: .omitted))
             }
             .padding(20)
             .background(Color(.secondarySystemBackground))
@@ -95,7 +95,7 @@ struct SubscriptionDetailView: View {
             Button(role: .destructive) {
                 showingDeleteAlert = true
             } label: {
-                Label("Delete Subscription", systemImage: "trash")
+                Label(String(localized: "Delete Subscription"), systemImage: "trash")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -106,29 +106,29 @@ struct SubscriptionDetailView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .navigationTitle("Details")
+        .navigationTitle(String(localized: "Details"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Done") {
+                Button(String(localized: "Done")) {
                     dismiss()
                 }
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Edit") {
+                Button(String(localized: "Edit")) {
                     isEditing = true
                 }
             }
         }
-        .alert("Delete Subscription", isPresented: $showingDeleteAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "Delete Subscription"), isPresented: $showingDeleteAlert) {
+            Button(String(localized: "Cancel"), role: .cancel) { }
+            Button(String(localized: "Delete"), role: .destructive) {
                 store.deleteSubscription(id: subscription.id)
                 dismiss()
             }
         } message: {
-            Text("Are you sure you want to delete \(subscription.name)?")
+            Text(String(localized: "Are you sure you want to delete \(subscription.name)?"))
         }
     }
     
@@ -146,7 +146,7 @@ struct SubscriptionDetailView: View {
     private var editForm: some View {
         Form {
             Section {
-                TextField("Service Name", text: $name)
+                TextField(String(localized: "Service Name"), text: $name)
                 
                 HStack {
                     Text("$")
@@ -155,7 +155,7 @@ struct SubscriptionDetailView: View {
                         .keyboardType(.decimalPad)
                 }
             } header: {
-                Text("Subscription Details")
+                Text(String(localized: "Subscription Details"))
             }
             
             Section {
@@ -166,32 +166,32 @@ struct SubscriptionDetailView: View {
                 }
                 .pickerStyle(.segmented)
             } header: {
-                Text("Billing")
+                Text(String(localized: "Billing"))
             }
             
             Section {
-                Picker("Category", selection: $category) {
+                Picker(String(localized: "Category"), selection: $category) {
                     ForEach(SubscriptionCategory.allCases) { cat in
                         Label(cat.rawValue, systemImage: cat.systemIcon)
                             .tag(cat)
                     }
                 }
             } header: {
-                Text("Category")
+                Text(String(localized: "Category"))
             }
         }
-        .navigationTitle("Edit")
+        .navigationTitle(String(localized: "Edit"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button("Cancel") {
+                Button(String(localized: "Cancel")) {
                     resetFields()
                     isEditing = false
                 }
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
+                Button(String(localized: "Save")) {
                     saveChanges()
                 }
                 .fontWeight(.semibold)

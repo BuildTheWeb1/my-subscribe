@@ -10,14 +10,19 @@ import SwiftUI
 struct ScrollFadeModifier: ViewModifier {
     let index: Int
     @State private var isVisible = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     func body(content: Content) -> some View {
         content
             .opacity(isVisible ? 1 : 0)
             .scaleEffect(isVisible ? 1 : 0.9)
             .onAppear {
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(index) * 0.05)) {
+                if reduceMotion {
                     isVisible = true
+                } else {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(index) * 0.05)) {
+                        isVisible = true
+                    }
                 }
             }
             .onDisappear {
@@ -29,8 +34,10 @@ struct ScrollFadeModifier: ViewModifier {
 struct SubscriptionGridView: View {
     let subscriptions: [Subscription]
     let totalMonthly: Decimal
+    let loadError: String?
     let onTap: (Subscription) -> Void
     let onDelete: (UUID) -> Void
+    let onRetry: () -> Void
     
     private let twoColumns = [
         GridItem(.flexible(), spacing: 16),
@@ -59,7 +66,9 @@ struct SubscriptionGridView: View {
     }
     
     var body: some View {
-        if subscriptions.isEmpty {
+        if let error = loadError {
+            errorStateView(message: error)
+        } else if subscriptions.isEmpty {
             emptyStateView
         } else {
             VStack(spacing: 24) {
@@ -133,6 +142,8 @@ struct SubscriptionGridView: View {
     @ViewBuilder
     private func cardButton(_ subscription: Subscription, size: SubscriptionCardView.CardSize, height: CGFloat) -> some View {
         Button {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
             onTap(subscription)
         } label: {
             SubscriptionCardView(
@@ -143,11 +154,13 @@ struct SubscriptionGridView: View {
             .frame(height: height)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "\(subscription.name), \(subscription.monthlyAmount.formattedAsCurrency) per month"))
+        .accessibilityHint(String(localized: "Double tap to view details"))
         .contextMenu {
             Button(role: .destructive) {
                 onDelete(subscription.id)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete"), systemImage: "trash")
             }
         }
     }
@@ -155,19 +168,55 @@ struct SubscriptionGridView: View {
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "creditcard")
-                .font(.system(size: 60))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(AppColors.textSecondary.opacity(0.5))
             
-            Text("No Subscriptions")
+            Text(String(localized: "No Subscriptions"))
                 .font(.title2.bold())
                 .foregroundStyle(AppColors.textPrimary)
             
-            Text("Tap + to add your first subscription")
+            Text(String(localized: "Tap + to add your first subscription"))
                 .font(.subheadline)
                 .foregroundStyle(AppColors.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.vertical, 60)
+    }
+    
+    private func errorStateView(message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.largeTitle)
+                .imageScale(.large)
+                .foregroundStyle(AppColors.coral)
+            
+            Text(String(localized: "Something went wrong"))
+                .font(.title2.bold())
+                .foregroundStyle(AppColors.textPrimary)
+            
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(AppColors.textSecondary)
+                .multilineTextAlignment(.center)
+            
+            Button {
+                onRetry()
+            } label: {
+                Text(String(localized: "Try Again"))
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(AppColors.coral)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .accessibilityLabel(String(localized: "Retry loading subscriptions"))
+            .padding(.top, 8)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.vertical, 60)
+        .padding(.horizontal, 32)
     }
 }
 
@@ -176,8 +225,10 @@ struct SubscriptionGridView: View {
         SubscriptionGridView(
             subscriptions: Subscription.samples,
             totalMonthly: 196.76,
+            loadError: nil,
             onTap: { _ in },
-            onDelete: { _ in }
+            onDelete: { _ in },
+            onRetry: {}
         )
         .padding()
     }

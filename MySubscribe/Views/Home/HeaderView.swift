@@ -58,16 +58,16 @@ struct HeaderView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 8) {
-                Text("Total Monthly")
-                    .font(.system(size: 14, weight: .medium))
+                Text(String(localized: "Total Monthly"))
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(AppColors.textSecondary)
                 
                 Text(totalMonthly.formattedAsCurrency)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.largeTitle.bold().width(.condensed))
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text("~\(totalYearly.formattedAsCurrency)/year")
-                    .font(.system(size: 16, weight: .medium))
+                Text(String(localized: "~\(totalYearly.formattedAsCurrency)/year"))
+                    .font(.callout.weight(.medium))
                     .foregroundStyle(AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
@@ -79,6 +79,8 @@ struct HeaderView: View {
             .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
             
             Button {
+                let impact = UIImpactFeedbackGenerator(style: .medium)
+                impact.impactOccurred()
                 onAddTapped()
             } label: {
                 ZStack {
@@ -92,6 +94,7 @@ struct HeaderView: View {
                         .foregroundStyle(Color.white)
                 }
             }
+            .accessibilityLabel(String(localized: "Add subscription"))
             .offset(y: 35)
         }
         .padding(.bottom, 35)

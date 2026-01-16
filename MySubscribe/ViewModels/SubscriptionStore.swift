@@ -12,6 +12,8 @@ import SwiftUI
 @MainActor
 final class SubscriptionStore {
     private(set) var subscriptions: [Subscription] = []
+    private(set) var loadError: String?
+    private(set) var saveError: String?
     
     private let storageKey = "com.mysubscribe.subscriptions"
     private let encoder = JSONEncoder()
@@ -78,6 +80,7 @@ final class SubscriptionStore {
     // MARK: - Persistence
     
     private func loadSubscriptions() {
+        loadError = nil
         guard let data = UserDefaults.standard.data(forKey: storageKey) else {
             subscriptions = Subscription.samples
             return
@@ -87,17 +90,28 @@ final class SubscriptionStore {
             subscriptions = try decoder.decode([Subscription].self, from: data)
         } catch {
             print("❌ Failed to load subscriptions: \(error)")
+            loadError = String(localized: "Unable to load your subscriptions. Data may be corrupted.")
             subscriptions = []
         }
     }
     
+    func retryLoad() {
+        loadSubscriptions()
+    }
+    
     private func saveSubscriptions() {
+        saveError = nil
         do {
             let data = try encoder.encode(subscriptions)
             UserDefaults.standard.set(data, forKey: storageKey)
         } catch {
             print("❌ Failed to save subscriptions: \(error)")
+            saveError = String(localized: "Unable to save changes. Please try again.")
         }
+    }
+    
+    func dismissSaveError() {
+        saveError = nil
     }
     
     // MARK: - Debug

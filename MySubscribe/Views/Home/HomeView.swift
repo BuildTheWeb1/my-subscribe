@@ -13,6 +13,8 @@ struct HomeView: View {
     @State private var selectedSubscription: Subscription?
     @State private var subscriptionToDelete: Subscription?
     @State private var showingDeleteAlert = false
+    @State private var showingSaveErrorAlert = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     #if DEBUG
     @State private var showingDebugConsole = false
     #endif
@@ -33,6 +35,7 @@ struct HomeView: View {
                     SubscriptionGridView(
                         subscriptions: store.subscriptions,
                         totalMonthly: store.totalMonthlySpending,
+                        loadError: store.loadError,
                         onTap: { subscription in
                             selectedSubscription = subscription
                         },
@@ -41,11 +44,14 @@ struct HomeView: View {
                                 subscriptionToDelete = sub
                                 showingDeleteAlert = true
                             }
+                        },
+                        onRetry: {
+                            store.retryLoad()
                         }
                     )
                 }
                 .padding(16)
-                .animation(.easeInOut(duration: 0.3), value: store.subscriptions.count)
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
             }
             .scrollIndicators(.hidden)
             .background(Color.white)
@@ -73,11 +79,11 @@ struct HomeView: View {
                     subscription: subscription
                 )
             }
-            .alert("Delete Subscription", isPresented: $showingDeleteAlert) {
-                Button("Cancel", role: .cancel) {
+            .alert(String(localized: "Delete Subscription"), isPresented: $showingDeleteAlert) {
+                Button(String(localized: "Cancel"), role: .cancel) {
                     subscriptionToDelete = nil
                 }
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete"), role: .destructive) {
                     if let sub = subscriptionToDelete {
                         withAnimation {
                             store.deleteSubscription(id: sub.id)
@@ -87,7 +93,7 @@ struct HomeView: View {
                 }
             } message: {
                 if let sub = subscriptionToDelete {
-                    Text("Are you sure you want to delete \(sub.name)?")
+                    Text(String(localized: "Are you sure you want to delete \(sub.name)?"))
                 }
             }
             #if DEBUG
@@ -95,6 +101,18 @@ struct HomeView: View {
                 DebugConsoleView(subscriptions: store.subscriptions)
             }
             #endif
+            .onChange(of: store.saveError) { _, newValue in
+                showingSaveErrorAlert = newValue != nil
+            }
+            .alert(String(localized: "Save Error"), isPresented: $showingSaveErrorAlert) {
+                Button(String(localized: "OK"), role: .cancel) {
+                    store.dismissSaveError()
+                }
+            } message: {
+                if let error = store.saveError {
+                    Text(error)
+                }
+            }
         }
     }
 }

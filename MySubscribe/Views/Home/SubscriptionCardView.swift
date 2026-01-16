@@ -27,17 +27,17 @@ struct SubscriptionCardView: View {
         
         var priceFont: Font {
             switch self {
-            case .large: return .system(size: 36, weight: .bold, design: .rounded)
-            case .medium: return .system(size: 24, weight: .bold, design: .rounded)
-            case .small: return .system(size: 18, weight: .bold, design: .rounded)
+            case .large: return .title.bold().width(.condensed)
+            case .medium: return .title2.bold().width(.condensed)
+            case .small: return .headline.bold().width(.condensed)
             }
         }
         
         var nameFont: Font {
             switch self {
-            case .large: return .system(size: 16, weight: .medium)
-            case .medium: return .system(size: 14, weight: .medium)
-            case .small: return .system(size: 12, weight: .medium)
+            case .large: return .subheadline.weight(.medium)
+            case .medium: return .footnote.weight(.medium)
+            case .small: return .caption.weight(.medium)
             }
         }
         
@@ -77,11 +77,11 @@ struct SubscriptionCardView: View {
                 
                 if size != .small && percentageOfTotal > 0 {
                     Text("\(percentageOfTotal)%")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(AppColors.textSecondary)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(AppColors.textPrimary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.6))
+                        .background(Color.white.opacity(0.85))
                         .clipShape(Capsule())
                 }
             }
@@ -99,7 +99,7 @@ struct SubscriptionCardView: View {
                     .foregroundStyle(AppColors.textPrimary)
                 
                 Text("~\(subscription.yearlyAmount.formattedAsShortCurrency)/yr")
-                    .font(.system(size: size == .small ? 10 : 12))
+                    .font(size == .small ? .caption2 : .caption)
                     .foregroundStyle(AppColors.textSecondary)
             }
         }
