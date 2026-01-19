@@ -12,6 +12,7 @@ struct MySubscribeApp: App {
     
     init() {
         AnalyticsService.shared.configure()
+        ReviewService.shared.recordAppLaunch()
     }
     
     var body: some Scene {

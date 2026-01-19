@@ -50,6 +50,7 @@ final class SubscriptionStore {
             "category": subscription.category.rawValue,
             "billing_cycle": subscription.billingCycle.rawValue
         ])
+        ReviewService.shared.requestReviewIfAppropriate()
     }
     
     func updateSubscription(_ subscription: Subscription) {
