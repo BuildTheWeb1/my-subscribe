@@ -33,6 +33,9 @@ struct HomeView: View {
                             loadError: store.loadError,
                             onTap: { subscription in
                                 selectedSubscription = subscription
+                                AnalyticsService.shared.track(.detailViewOpened, properties: [
+                                    "category": subscription.category.rawValue
+                                ])
                             },
                             onDelete: { id in
                                 if let sub = store.subscriptions.first(where: { $0.id == id }) {
@@ -56,11 +59,12 @@ struct HomeView: View {
                     subscriptionCount: store.subscriptionCount,
                     onAddTapped: {
                         showingAddSheet = true
+                        AnalyticsService.shared.track(.addSheetOpened)
                     }
                 )
                 .padding(.horizontal, 16)
             }
-            .background(Color.white)
+            .background(AppColors.background)
 //            .navigationTitle("MySubscribe")
             .toolbar {
                 #if DEBUG
@@ -70,7 +74,7 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "ladybug")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color.black)
+                            .foregroundStyle(AppColors.textPrimary)
                     }
                     .accessibilityLabel("Debug console")
                 }

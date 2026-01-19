@@ -56,11 +56,12 @@ enum AppColors {
         endPoint: .bottomTrailing
     )
     
-    // MARK: - Semantic Colors
-    static let background = Color(hex: "F8F9FA")
+    // MARK: - Semantic Colors (adaptive for dark mode)
+    static let background = Color(.systemBackground)
+    static let secondaryBackground = Color(.secondarySystemBackground)
     static let cardShadow = Color.black.opacity(0.08)
-    static let textPrimary = Color(hex: "1A1A1A")
-    static let textSecondary = Color(hex: "4B5563")
+    static let textPrimary = Color(.label)
+    static let textSecondary = Color(.secondaryLabel)
     
     // MARK: - Category Colors (vibrant palette)
     static let categoryStreaming = Color(hex: "F52258")   // Red/Pink

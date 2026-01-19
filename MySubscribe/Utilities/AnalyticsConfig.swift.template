@@ -1,0 +1,15 @@
+//
+//  AnalyticsConfig.swift
+//  MySubscribe
+//
+//  Created by WebSpace Developer on 19.01.2026.
+//
+//  ⚠️ Copy this file to AnalyticsConfig.swift and replace YOUR_API_KEY_HERE with your actual Amplitude API key.
+//  DO NOT commit AnalyticsConfig.swift to version control.
+//
+
+import Foundation
+
+enum AnalyticsConfig {
+    static let amplitudeAPIKey = "YOUR_API_KEY_HERE"
+}

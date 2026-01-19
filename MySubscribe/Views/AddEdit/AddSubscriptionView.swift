@@ -48,14 +48,14 @@ struct AddSubscriptionView: View {
                                 .autocorrectionDisabled()
                         }
                     }
-                    .background(Color.white)
+                    .background(AppColors.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.horizontal, 20)
                     .padding(.top, 24)
                     
                     Text(String(localized: "Billing"))
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(AppColors.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                         .padding(.top, 24)
@@ -89,7 +89,7 @@ struct AddSubscriptionView: View {
                                 .labelsHidden()
                         }
                     }
-                    .background(Color.white)
+                    .background(AppColors.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.horizontal, 20)
                     .padding(.top, 24)
@@ -118,7 +118,7 @@ struct AddSubscriptionView: View {
                         saveSubscription()
                     }
                     .fontWeight(.semibold)
-                    .foregroundStyle(isValid ? Color.black : Color.gray)
+                    .foregroundStyle(isValid ? AppColors.textPrimary : AppColors.textSecondary)
                     .disabled(!isValid)
                 }
             }
@@ -158,7 +158,7 @@ struct InputRow<Content: View>: View {
             
             Text(title)
                 .font(.body)
-                .foregroundStyle(Color.black)
+                .foregroundStyle(AppColors.textPrimary)
             
             Spacer()
             

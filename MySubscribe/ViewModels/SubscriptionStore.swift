@@ -46,6 +46,10 @@ final class SubscriptionStore {
     func addSubscription(_ subscription: Subscription) {
         subscriptions.append(subscription)
         saveSubscriptions()
+        AnalyticsService.shared.track(.subscriptionAdded, properties: [
+            "category": subscription.category.rawValue,
+            "billing_cycle": subscription.billingCycle.rawValue
+        ])
     }
     
     func updateSubscription(_ subscription: Subscription) {
@@ -63,11 +67,18 @@ final class SubscriptionStore {
         )
         subscriptions[index] = updated
         saveSubscriptions()
+        AnalyticsService.shared.track(.subscriptionEdited, properties: [
+            "category": subscription.category.rawValue
+        ])
     }
     
     func deleteSubscription(id: UUID) {
+        let category = subscriptions.first(where: { $0.id == id })?.category.rawValue
         subscriptions.removeAll { $0.id == id }
         saveSubscriptions()
+        AnalyticsService.shared.track(.subscriptionDeleted, properties: [
+            "category": category ?? "unknown"
+        ])
     }
     
     func deleteSubscriptions(at offsets: IndexSet) {

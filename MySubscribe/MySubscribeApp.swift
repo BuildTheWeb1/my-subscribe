@@ -9,6 +9,11 @@ import SwiftUI
 
 @main
 struct MySubscribeApp: App {
+    
+    init() {
+        AnalyticsService.shared.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

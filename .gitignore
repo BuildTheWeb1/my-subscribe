@@ -106,6 +106,8 @@ GoogleService-Info-Prod.plist
 
 # Secrets (API keys, credentials)
 **/Secrets.swift
+Secrets.xcconfig
+**/AnalyticsConfig.swift
 
 # IDE
 .vscode/

@@ -53,7 +53,7 @@ struct DebugConsoleView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(AppColors.textPrimary)
                 }
             }
         }
