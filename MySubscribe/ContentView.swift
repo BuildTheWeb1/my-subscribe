@@ -9,9 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var store = SubscriptionStore()
+    @State private var showSplash = true
     
     var body: some View {
-        HomeView(store: store)
+        ZStack {
+            HomeView(store: store)
+            
+            if showSplash {
+                SplashScreenView(isActive: $showSplash)
+                    .transition(.opacity)
+                    .zIndex(1)
+            }
+        }
     }
 }
 
