@@ -14,6 +14,7 @@ final class SubscriptionStore {
     private(set) var subscriptions: [Subscription] = []
     private(set) var loadError: String?
     private(set) var saveError: String?
+    private(set) var recentlyModifiedId: UUID?
     
     private let storageKey = "com.mysubscribe.subscriptions"
     private let encoder = JSONEncoder()
@@ -46,6 +47,7 @@ final class SubscriptionStore {
     func addSubscription(_ subscription: Subscription) {
         subscriptions.append(subscription)
         saveSubscriptions()
+        recentlyModifiedId = subscription.id
         AnalyticsService.shared.track(.subscriptionAdded, properties: [
             "category": subscription.category.rawValue,
             "billing_cycle": subscription.billingCycle.rawValue
@@ -55,19 +57,20 @@ final class SubscriptionStore {
     
     func updateSubscription(_ subscription: Subscription) {
         guard let index = subscriptions.firstIndex(where: { $0.id == subscription.id }) else { return }
-        var updated = subscription
-        updated = Subscription(
+        let updated = Subscription(
             id: subscription.id,
             name: subscription.name,
             cost: subscription.cost,
             billingCycle: subscription.billingCycle,
             category: subscription.category,
             customColor: subscription.customColor,
+            startDate: subscription.startDate,
             createdAt: subscription.createdAt,
             updatedAt: Date()
         )
         subscriptions[index] = updated
         saveSubscriptions()
+        recentlyModifiedId = subscription.id
         AnalyticsService.shared.track(.subscriptionEdited, properties: [
             "category": subscription.category.rawValue
         ])
@@ -124,6 +127,10 @@ final class SubscriptionStore {
     
     func dismissSaveError() {
         saveError = nil
+    }
+    
+    func clearRecentlyModified() {
+        recentlyModifiedId = nil
     }
     
     // MARK: - Debug

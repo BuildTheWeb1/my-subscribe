@@ -23,7 +23,7 @@ enum SubscriptionCategory: String, Codable, CaseIterable, Identifiable {
     var systemIcon: String {
         switch self {
         case .streaming: return "play.tv.fill"
-        case .software: return "app.fill"
+        case .software: return "inset.filled.rectangle.and.pointer.arrow"
         case .fitness: return "figure.run"
         case .productivity: return "briefcase.fill"
         case .gaming: return "gamecontroller.fill"

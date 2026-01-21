@@ -35,6 +35,7 @@ struct SubscriptionGridView: View {
     let subscriptions: [Subscription]
     let totalMonthly: Decimal
     let loadError: String?
+    let recentlyModifiedId: UUID?
     let onTap: (Subscription) -> Void
     let onDelete: (UUID) -> Void
     let onRetry: () -> Void
@@ -152,6 +153,7 @@ struct SubscriptionGridView: View {
                 size: size
             )
             .frame(height: height)
+            .shineEffect(isActive: subscription.id == recentlyModifiedId)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "\(subscription.name), \(subscription.monthlyAmount.formattedAsCurrency) per month"))
@@ -226,6 +228,7 @@ struct SubscriptionGridView: View {
             subscriptions: Subscription.samples,
             totalMonthly: 196.76,
             loadError: nil,
+            recentlyModifiedId: nil,
             onTap: { _ in },
             onDelete: { _ in },
             onRetry: {}

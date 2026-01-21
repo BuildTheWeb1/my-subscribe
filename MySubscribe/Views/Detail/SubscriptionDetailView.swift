@@ -17,6 +17,7 @@ struct SubscriptionDetailView: View {
     @State private var costString: String
     @State private var billingCycle: Subscription.BillingCycle
     @State private var category: SubscriptionCategory
+    @State private var startDate: Date
     @State private var isEditing = false
     @State private var showingDeleteAlert = false
     
@@ -27,6 +28,7 @@ struct SubscriptionDetailView: View {
         _costString = State(initialValue: "\(subscription.cost)")
         _billingCycle = State(initialValue: subscription.billingCycle)
         _category = State(initialValue: subscription.category)
+        _startDate = State(initialValue: subscription.startDate)
     }
     
     private var isValid: Bool {
@@ -187,6 +189,12 @@ struct SubscriptionDetailView: View {
             } header: {
                 Text(String(localized: "Category"))
             }
+            
+            Section {
+                DatePicker(String(localized: "Start Date"), selection: $startDate, displayedComponents: .date)
+            } header: {
+                Text(String(localized: "Start Date"))
+            }
         }
         .navigationTitle(String(localized: "Edit"))
         .navigationBarTitleDisplayMode(.inline)
@@ -217,6 +225,7 @@ struct SubscriptionDetailView: View {
         costString = "\(subscription.cost)"
         billingCycle = subscription.billingCycle
         category = subscription.category
+        startDate = subscription.startDate
     }
     
     private func saveChanges() {
@@ -229,7 +238,7 @@ struct SubscriptionDetailView: View {
             cost: cost,
             billingCycle: billingCycle,
             category: category,
-            startDate: subscription.startDate,
+            startDate: startDate,
             createdAt: subscription.createdAt,
             updatedAt: Date()
         )

@@ -31,6 +31,7 @@ struct HomeView: View {
                             subscriptions: store.subscriptions,
                             totalMonthly: store.totalMonthlySpending,
                             loadError: store.loadError,
+                            recentlyModifiedId: store.recentlyModifiedId,
                             onTap: { subscription in
                                 selectedSubscription = subscription
                                 AnalyticsService.shared.track(.detailViewOpened, properties: [
@@ -121,6 +122,13 @@ struct HomeView: View {
             } message: {
                 if let error = store.saveError {
                     Text(error)
+                }
+            }
+            .onChange(of: store.recentlyModifiedId) { _, newValue in
+                if newValue != nil {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        store.clearRecentlyModified()
+                    }
                 }
             }
         }

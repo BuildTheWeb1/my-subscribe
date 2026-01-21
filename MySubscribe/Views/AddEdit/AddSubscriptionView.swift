@@ -78,6 +78,8 @@ struct AddSubscriptionView: View {
                             }
                             .pickerStyle(.menu)
                             .tint(AppColors.textSecondary)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
                         }
                         
                         Divider()
@@ -163,9 +165,11 @@ struct InputRow<Content: View>: View {
             Spacer()
             
             content()
+                .frame(minWidth: 120, alignment: .trailing)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 24)
+        .contentShape(Rectangle())
     }
 }
 
