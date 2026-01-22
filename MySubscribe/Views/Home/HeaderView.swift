@@ -13,6 +13,7 @@ struct CurvedBottomShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let curveDepth: CGFloat = 40
+        let bottomInset: CGFloat = 30
         
         path.move(to: CGPoint(x: cornerRadius, y: 0))
         path.addLine(to: CGPoint(x: rect.width - cornerRadius, y: 0))
@@ -21,11 +22,18 @@ struct CurvedBottomShape: Shape {
             control: CGPoint(x: rect.width, y: 0)
         )
         
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height - curveDepth))
+        path.addLine(to: CGPoint(x: rect.width, y: rect.height - curveDepth - bottomInset))
         
-        path.addQuadCurve(
-            to: CGPoint(x: 0, y: rect.height - curveDepth),
-            control: CGPoint(x: rect.width / 2, y: rect.height + curveDepth)
+        path.addCurve(
+            to: CGPoint(x: rect.width / 2, y: rect.height),
+            control1: CGPoint(x: rect.width, y: rect.height - bottomInset),
+            control2: CGPoint(x: rect.width * 0.75, y: rect.height)
+        )
+        
+        path.addCurve(
+            to: CGPoint(x: 0, y: rect.height - curveDepth - bottomInset),
+            control1: CGPoint(x: rect.width * 0.25, y: rect.height),
+            control2: CGPoint(x: 0, y: rect.height - bottomInset)
         )
         
         path.addLine(to: CGPoint(x: 0, y: cornerRadius))

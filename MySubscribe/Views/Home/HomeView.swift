@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var subscriptionToDelete: Subscription?
     @State private var showingDeleteAlert = false
     @State private var showingSaveErrorAlert = false
+    @State private var showingChartsSheet = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     #if DEBUG
     @State private var showingDebugConsole = false
@@ -80,6 +81,17 @@ struct HomeView: View {
                     .accessibilityLabel("Debug console")
                 }
                 #endif
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingChartsSheet = true
+                    } label: {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(AppColors.textPrimary)
+                    }
+                    .accessibilityLabel(String(localized: "View spending charts"))
+                }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddSubscriptionView(store: store)
@@ -112,6 +124,9 @@ struct HomeView: View {
                 DebugConsoleView(subscriptions: store.subscriptions)
             }
             #endif
+            .sheet(isPresented: $showingChartsSheet) {
+                ChartsView(subscriptions: store.subscriptions)
+            }
             .onChange(of: store.saveError) { _, newValue in
                 showingSaveErrorAlert = newValue != nil
             }
