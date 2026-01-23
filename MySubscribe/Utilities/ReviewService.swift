@@ -32,13 +32,15 @@ final class ReviewService {
         defaults.set(currentCount + 1, forKey: launchCountKey)
     }
     
+    @MainActor
     func requestReviewIfAppropriate() {
         guard shouldRequestReview() else { return }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
             if let windowScene = UIApplication.shared.connectedScenes
                 .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                SKStoreReviewController.requestReview(in: windowScene)
+                AppStore.requestReview(in: windowScene)
                 UserDefaults.standard.set(Date(), forKey: self.lastReviewRequestKey)
             }
         }

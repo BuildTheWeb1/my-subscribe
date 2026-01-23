@@ -24,9 +24,9 @@ struct HomeView: View {
         NavigationStack {
             ZStack(alignment: .top) {
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 0) {
                         Color.clear
-                            .frame(height: 220)
+                            .frame(height: 260)
                         
                         SubscriptionGridView(
                             subscriptions: store.subscriptions,
@@ -49,9 +49,9 @@ struct HomeView: View {
                                 store.retryLoad()
                             }
                         )
+                        .padding(16)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
                     }
-                    .padding(16)
-                    .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
                 }
                 .scrollIndicators(.hidden)
                 
@@ -62,6 +62,9 @@ struct HomeView: View {
                     onAddTapped: {
                         showingAddSheet = true
                         AnalyticsService.shared.track(.addSheetOpened)
+                    },
+                    onChartsTapped: {
+                        showingChartsSheet = true
                     }
                 )
                 .padding(.horizontal, 16)
@@ -81,17 +84,6 @@ struct HomeView: View {
                     .accessibilityLabel("Debug console")
                 }
                 #endif
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingChartsSheet = true
-                    } label: {
-                        Image(systemName: "chart.line.uptrend.xyaxis")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(AppColors.textPrimary)
-                    }
-                    .accessibilityLabel(String(localized: "View spending charts"))
-                }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddSubscriptionView(store: store)

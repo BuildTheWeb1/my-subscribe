@@ -52,29 +52,48 @@ struct HeaderView: View {
     let totalYearly: Decimal
     let subscriptionCount: Int
     let onAddTapped: () -> Void
+    let onChartsTapped: () -> Void
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(spacing: 8) {
-                Text(String(localized: "Total Monthly"))
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(Color.white.opacity(0.8))
+            ZStack(alignment: .topTrailing) {
+                VStack(spacing: 8) {
+                    Text(String(localized: "Total Monthly"))
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Color.white.opacity(0.8))
+                    
+                    Text(totalMonthly.formattedAsCurrency)
+                        .font(.largeTitle.bold().width(.condensed))
+                        .foregroundStyle(Color.white)
+                    
+                    Text(String(localized: "~\(totalYearly.formattedAsCurrency)/year"))
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(Color.white.opacity(0.8))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+                .padding(.bottom, 60)
+                .padding(.horizontal, 20)
+                .background(AppColors.cardGradientBlue)
+                .clipShape(CurvedBottomShape())
+                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
                 
-                Text(totalMonthly.formattedAsCurrency)
-                    .font(.largeTitle.bold().width(.condensed))
-                    .foregroundStyle(Color.white)
-                
-                Text(String(localized: "~\(totalYearly.formattedAsCurrency)/year"))
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(Color.white.opacity(0.8))
+                Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    onChartsTapped()
+                } label: {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Color.white.opacity(0.9))
+                        .padding(12)
+                        .background(Color.white.opacity(0.15))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel(String(localized: "View spending charts"))
+                .padding(.top, 12)
+                .padding(.trailing, 8)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 40)
-            .padding(.bottom, 60)
-            .padding(.horizontal, 20)
-            .background(AppColors.cardGradientBlue)
-            .clipShape(CurvedBottomShape())
-            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
             
             Button {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -95,7 +114,6 @@ struct HeaderView: View {
             .accessibilityLabel(String(localized: "Add subscription"))
             .offset(y: 40)
         }
-        .padding(.bottom, 35)
     }
 }
 
@@ -105,7 +123,8 @@ struct HeaderView: View {
             totalMonthly: 196.76,
             totalYearly: 2361.12,
             subscriptionCount: 12,
-            onAddTapped: {}
+            onAddTapped: {},
+            onChartsTapped: {}
         )
         Spacer()
     }

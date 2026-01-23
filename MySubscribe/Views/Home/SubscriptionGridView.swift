@@ -40,30 +40,32 @@ struct SubscriptionGridView: View {
     let onDelete: (UUID) -> Void
     let onRetry: () -> Void
     
-    private let twoColumns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
+    private let spacing: CGFloat = 12
     
-    private let threeColumns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
-    
-    private var largeSubscriptions: [Subscription] {
-        subscriptions.filter { cardSize(for: $0) == .large }
-            .sorted { $0.monthlyAmount > $1.monthlyAmount }
+    private var sortedSubscriptions: [Subscription] {
+        subscriptions.sorted { $0.monthlyAmount > $1.monthlyAmount }
     }
     
-    private var mediumSubscriptions: [Subscription] {
-        subscriptions.filter { cardSize(for: $0) == .medium }
-            .sorted { $0.monthlyAmount > $1.monthlyAmount }
-    }
-    
-    private var smallSubscriptions: [Subscription] {
-        subscriptions.filter { cardSize(for: $0) == .small }
-            .sorted { $0.monthlyAmount > $1.monthlyAmount }
+    private var masonryColumns: (left: [(Subscription, SubscriptionCardView.CardSize)], right: [(Subscription, SubscriptionCardView.CardSize)]) {
+        var leftColumn: [(Subscription, SubscriptionCardView.CardSize)] = []
+        var rightColumn: [(Subscription, SubscriptionCardView.CardSize)] = []
+        var leftHeight: CGFloat = 0
+        var rightHeight: CGFloat = 0
+        
+        for subscription in sortedSubscriptions {
+            let size = cardSize(for: subscription)
+            let height = cardHeight(for: size)
+            
+            if leftHeight <= rightHeight {
+                leftColumn.append((subscription, size))
+                leftHeight += height + spacing
+            } else {
+                rightColumn.append((subscription, size))
+                rightHeight += height + spacing
+            }
+        }
+        
+        return (leftColumn, rightColumn)
     }
     
     var body: some View {
@@ -72,56 +74,20 @@ struct SubscriptionGridView: View {
         } else if subscriptions.isEmpty {
             emptyStateView
         } else {
-            VStack(spacing: 24) {
-                if !largeSubscriptions.isEmpty {
-                    gridSection(
-                        subscriptions: largeSubscriptions,
-                        columns: twoColumns,
-                        size: .large,
-                        height: 180,
-                        rowSpacing: 16,
-                        startIndex: 0
-                    )
+            HStack(alignment: .top, spacing: spacing) {
+                VStack(spacing: spacing) {
+                    ForEach(Array(masonryColumns.left.enumerated()), id: \.element.0.id) { index, item in
+                        cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
+                            .modifier(ScrollFadeModifier(index: index))
+                    }
                 }
                 
-                if !mediumSubscriptions.isEmpty {
-                    gridSection(
-                        subscriptions: mediumSubscriptions,
-                        columns: twoColumns,
-                        size: .medium,
-                        height: 140,
-                        rowSpacing: 16,
-                        startIndex: largeSubscriptions.count
-                    )
+                VStack(spacing: spacing) {
+                    ForEach(Array(masonryColumns.right.enumerated()), id: \.element.0.id) { index, item in
+                        cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
+                            .modifier(ScrollFadeModifier(index: masonryColumns.left.count + index))
+                    }
                 }
-                
-                if !smallSubscriptions.isEmpty {
-                    gridSection(
-                        subscriptions: smallSubscriptions,
-                        columns: threeColumns,
-                        size: .small,
-                        height: 110,
-                        rowSpacing: 12,
-                        startIndex: largeSubscriptions.count + mediumSubscriptions.count
-                    )
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func gridSection(
-        subscriptions: [Subscription],
-        columns: [GridItem],
-        size: SubscriptionCardView.CardSize,
-        height: CGFloat,
-        rowSpacing: CGFloat,
-        startIndex: Int
-    ) -> some View {
-        LazyVGrid(columns: columns, spacing: rowSpacing) {
-            ForEach(Array(subscriptions.enumerated()), id: \.element.id) { index, subscription in
-                cardButton(subscription, size: size, height: height)
-                    .modifier(ScrollFadeModifier(index: startIndex + index))
             }
         }
     }
@@ -137,6 +103,14 @@ struct SubscriptionGridView: View {
             return .medium
         } else {
             return .small
+        }
+    }
+    
+    private func cardHeight(for size: SubscriptionCardView.CardSize) -> CGFloat {
+        switch size {
+        case .large: return 180
+        case .medium: return 140
+        case .small: return 110
         }
     }
     
