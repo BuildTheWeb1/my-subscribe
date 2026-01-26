@@ -74,6 +74,9 @@ enum AppColors {
     static let categoryCloud = Color(hex: "09C0E0")       // Cyan
     static let categoryOther = Color(hex: "54CBE0")       // Light Cyan
     
+    static let categoryEducation = Color(hex: "8B5CF6")   // Purple
+    static let categoryUtilities = Color(hex: "6B7280")  // Gray
+    
     static func categoryColor(for category: SubscriptionCategory) -> Color {
         switch category {
         case .streaming: return categoryStreaming
@@ -84,6 +87,8 @@ enum AppColors {
         case .music: return categoryMusic
         case .news: return categoryNews
         case .cloud: return categoryCloud
+        case .education: return categoryEducation
+        case .utilities: return categoryUtilities
         case .other: return categoryOther
         }
     }

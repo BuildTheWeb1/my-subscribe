@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum SubscriptionCategory: String, Codable, CaseIterable, Identifiable {
     case streaming = "Streaming"
@@ -16,6 +17,8 @@ enum SubscriptionCategory: String, Codable, CaseIterable, Identifiable {
     case music = "Music"
     case news = "News"
     case cloud = "Cloud Storage"
+    case education = "Education"
+    case utilities = "Utilities"
     case other = "Other"
     
     var id: String { rawValue }
@@ -30,7 +33,13 @@ enum SubscriptionCategory: String, Codable, CaseIterable, Identifiable {
         case .music: return "music.note"
         case .news: return "newspaper.fill"
         case .cloud: return "cloud.fill"
+        case .education: return "book.fill"
+        case .utilities: return "wrench.and.screwdriver.fill"
         case .other: return "star.fill"
         }
+    }
+    
+    var color: Color {
+        AppColors.categoryColor(for: self)
     }
 }
