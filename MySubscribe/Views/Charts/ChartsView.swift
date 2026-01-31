@@ -89,7 +89,7 @@ struct ChartsView: View {
                     y: .value("Category", item.category.rawValue)
                 )
                 .foregroundStyle(item.color)
-                .cornerRadius(6)
+                .clipShape(.rect(cornerRadius: 6))
             }
             .chartXAxis {
                 AxisMarks(position: .bottom) { value in
@@ -205,7 +205,8 @@ struct ChartsView: View {
             animatedValues[item.category] = 0
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(100))
             withAnimation(.easeOut(duration: 0.8)) {
                 for item in categorySpending {
                     animatedValues[item.category] = Double(truncating: item.amount as NSDecimalNumber)

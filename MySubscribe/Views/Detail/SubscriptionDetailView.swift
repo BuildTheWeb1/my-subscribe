@@ -135,7 +135,7 @@ struct SubscriptionDetailView: View {
                 dismiss()
             }
         } message: {
-            Text(String(localized: "Are you sure you want to delete \(subscription.name)?"))
+            Text(String(localized: "Hey! You're still paying for this subscription, make sure you cancel it from your provider account."))
         }
     }
     

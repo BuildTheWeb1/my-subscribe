@@ -133,7 +133,8 @@ struct HomeView: View {
             }
             .onChange(of: store.recentlyModifiedId) { _, newValue in
                 if newValue != nil {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.5))
                         store.clearRecentlyModified()
                     }
                 }

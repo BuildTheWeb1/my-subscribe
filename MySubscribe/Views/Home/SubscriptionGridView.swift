@@ -41,6 +41,7 @@ struct SubscriptionGridView: View {
     let onRetry: () -> Void
     
     private let spacing: CGFloat = 12
+    private let impactGenerator = UIImpactFeedbackGenerator(style: .light)
     
     private var sortedSubscriptions: [Subscription] {
         subscriptions.sorted { $0.monthlyAmount > $1.monthlyAmount }
@@ -74,18 +75,19 @@ struct SubscriptionGridView: View {
         } else if subscriptions.isEmpty {
             emptyStateView
         } else {
+            let columns = masonryColumns
             HStack(alignment: .top, spacing: spacing) {
                 VStack(spacing: spacing) {
-                    ForEach(Array(masonryColumns.left.enumerated()), id: \.element.0.id) { index, item in
+                    ForEach(Array(columns.left.enumerated()), id: \.element.0.id) { index, item in
                         cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
                             .modifier(ScrollFadeModifier(index: index))
                     }
                 }
                 
                 VStack(spacing: spacing) {
-                    ForEach(Array(masonryColumns.right.enumerated()), id: \.element.0.id) { index, item in
+                    ForEach(Array(columns.right.enumerated()), id: \.element.0.id) { index, item in
                         cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
-                            .modifier(ScrollFadeModifier(index: masonryColumns.left.count + index))
+                            .modifier(ScrollFadeModifier(index: columns.left.count + index))
                     }
                 }
             }
@@ -117,8 +119,7 @@ struct SubscriptionGridView: View {
     @ViewBuilder
     private func cardButton(_ subscription: Subscription, size: SubscriptionCardView.CardSize, height: CGFloat) -> some View {
         Button {
-            let impact = UIImpactFeedbackGenerator(style: .light)
-            impact.impactOccurred()
+            impactGenerator.impactOccurred()
             onTap(subscription)
         } label: {
             SubscriptionCardView(

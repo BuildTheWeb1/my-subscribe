@@ -54,6 +54,9 @@ struct HeaderView: View {
     let onAddTapped: () -> Void
     let onChartsTapped: () -> Void
     
+    private let lightImpact = UIImpactFeedbackGenerator(style: .light)
+    private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .topTrailing) {
@@ -79,8 +82,7 @@ struct HeaderView: View {
                 .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
                 
                 Button {
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
+                    lightImpact.impactOccurred()
                     onChartsTapped()
                 } label: {
                     Image(systemName: "chart.line.uptrend.xyaxis")
@@ -96,8 +98,7 @@ struct HeaderView: View {
             }
             
             Button {
-                let impact = UIImpactFeedbackGenerator(style: .medium)
-                impact.impactOccurred()
+                mediumImpact.impactOccurred()
                 onAddTapped()
             } label: {
                 ZStack {
