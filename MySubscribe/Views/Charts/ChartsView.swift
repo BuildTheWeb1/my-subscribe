@@ -19,6 +19,7 @@ struct ChartsView: View {
     let subscriptions: [Subscription]
     @Environment(\.dismiss) private var dismiss
     @State private var animatedValues: [SubscriptionCategory: Double] = [:]
+    @Environment(\.currencyService) private var currencyService
     
     private var categorySpending: [CategorySpending] {
         var spending: [SubscriptionCategory: Decimal] = [:]
@@ -96,7 +97,7 @@ struct ChartsView: View {
                     AxisGridLine()
                     AxisValueLabel {
                         if let amount = value.as(Double.self) {
-                            Text(Decimal(amount).formattedAsShortCurrency)
+                            Text(formatShortCurrency(Decimal(amount)))
                                 .font(.caption)
                         }
                     }
@@ -138,7 +139,7 @@ struct ChartsView: View {
                     
                     Spacer()
                     
-                    Text(item.amount.formattedAsCurrency)
+                    Text(currencyService.format(item.amount))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(AppColors.textPrimary)
                     
@@ -158,7 +159,7 @@ struct ChartsView: View {
                 
                 Spacer()
                 
-                Text(totalSpending.formattedAsCurrency)
+                Text(currencyService.format(totalSpending))
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(AppColors.textPrimary)
                 
@@ -213,6 +214,18 @@ struct ChartsView: View {
                 }
             }
         }
+    }
+    
+    private func formatShortCurrency(_ amount: Decimal) -> String {
+        let convertedAmount = currencyService.convert(amount, to: currencyService.selectedCurrencyCode)
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyService.selectedCurrencyCode
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        
+        return formatter.string(from: convertedAmount as NSDecimalNumber) ?? "\(convertedAmount)"
     }
 }
 

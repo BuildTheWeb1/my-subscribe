@@ -12,6 +12,8 @@ struct SubscriptionCardView: View {
     let totalMonthly: Decimal
     let size: CardSize
     
+    @Environment(\.currencyService) private var currencyService
+    
     enum CardSize {
         case large
         case medium
@@ -102,11 +104,11 @@ struct SubscriptionCardView: View {
                     .foregroundStyle(textColor)
                     .lineLimit(1)
                 
-                Text(subscription.monthlyAmount.formattedAsShortCurrency)
+                Text(formatShortCurrency(subscription.monthlyAmount))
                     .font(size.priceFont)
                     .foregroundStyle(textColor)
                 
-                Text("~\(subscription.yearlyAmount.formattedAsShortCurrency)/yr")
+                Text("~\(formatShortCurrency(subscription.yearlyAmount))/yr")
                     .font(size == .small ? .caption2 : .caption)
                     .foregroundStyle(secondaryTextColor)
             }
@@ -116,6 +118,23 @@ struct SubscriptionCardView: View {
         .background(backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
+    }
+    
+    private func formatShortCurrency(_ amount: Decimal) -> String {
+        let convertedAmount = currencyService.convert(amount, to: currencyService.selectedCurrencyCode)
+        
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyService.selectedCurrencyCode
+        formatter.maximumFractionDigits = isWholeNumber(convertedAmount) ? 0 : 2
+        formatter.minimumFractionDigits = isWholeNumber(convertedAmount) ? 0 : 2
+        
+        return formatter.string(from: convertedAmount as NSDecimalNumber) ?? "\(convertedAmount)"
+    }
+    
+    private func isWholeNumber(_ value: Decimal) -> Bool {
+        let rounded = (value as NSDecimalNumber).rounding(accordingToBehavior: nil)
+        return value == Decimal(rounded.intValue)
     }
 }
 

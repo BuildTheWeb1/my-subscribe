@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import WidgetKit
 
 @Observable
 @MainActor
@@ -119,10 +120,39 @@ final class SubscriptionStore {
         do {
             let data = try encoder.encode(subscriptions)
             UserDefaults.standard.set(data, forKey: storageKey)
+            updateWidgetData()
         } catch {
             print("❌ Failed to save subscriptions: \(error)")
             saveError = String(localized: "Unable to save changes. Please try again.")
         }
+    }
+    
+    private func updateWidgetData() {
+        let upcomingRenewals = subscriptions
+            .sorted { $0.nextRenewalDate < $1.nextRenewalDate }
+            .prefix(5)
+            .map { subscription in
+                WidgetRenewalItem(
+                    id: subscription.id,
+                    name: subscription.name,
+                    amount: subscription.monthlyAmount,
+                    renewalDate: subscription.nextRenewalDate,
+                    categoryIcon: subscription.category.systemIcon,
+                    categoryColorHex: subscription.category.colorHex
+                )
+            }
+        
+        let widgetData = WidgetSubscriptionData(
+            totalMonthly: totalMonthlySpending,
+            totalYearly: totalYearlyProjection,
+            subscriptionCount: subscriptionCount,
+            upcomingRenewals: Array(upcomingRenewals),
+            currencyCode: CurrencyService.shared.selectedCurrencyCode,
+            lastUpdated: Date()
+        )
+        
+        WidgetDataProvider.save(widgetData)
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     func dismissSaveError() {

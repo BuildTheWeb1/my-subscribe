@@ -9,25 +9,24 @@ import Foundation
 
 extension Decimal {
     var formattedAsCurrency: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = 2
-        let number = formatter.string(from: self as NSDecimalNumber) ?? "0.00"
-        return "$\(number)"
+        CurrencyService.shared.format(self)
     }
     
     var formattedAsShortCurrency: String {
+        let currencyService = CurrencyService.shared
+        let convertedAmount = currencyService.convert(self, to: currencyService.selectedCurrencyCode)
+        
         let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = isWholeNumber ? 0 : 2
-        formatter.minimumFractionDigits = isWholeNumber ? 0 : 2
-        let number = formatter.string(from: self as NSDecimalNumber) ?? "0"
-        return "$\(number)"
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyService.selectedCurrencyCode
+        formatter.maximumFractionDigits = isWholeNumber(convertedAmount) ? 0 : 2
+        formatter.minimumFractionDigits = isWholeNumber(convertedAmount) ? 0 : 2
+        
+        return formatter.string(from: convertedAmount as NSDecimalNumber) ?? "\(convertedAmount)"
     }
     
-    private var isWholeNumber: Bool {
-        let rounded = (self as NSDecimalNumber).rounding(accordingToBehavior: nil)
-        return self == Decimal(rounded.intValue)
+    private func isWholeNumber(_ value: Decimal) -> Bool {
+        let rounded = (value as NSDecimalNumber).rounding(accordingToBehavior: nil)
+        return value == Decimal(rounded.intValue)
     }
 }

@@ -11,10 +11,16 @@ struct ContentView: View {
     @State private var store = SubscriptionStore()
     @State private var showSplash = true
     @State private var showOnboarding = false
+    @State private var authService = AuthenticationService.shared
+    @Environment(\.scenePhase) private var scenePhase
     
     private var shouldShowOnboarding: Bool {
         let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "com.mysubscribe.onboardingCompleted")
         return !hasCompletedOnboarding || store.subscriptions.isEmpty
+    }
+    
+    private var shouldShowLockScreen: Bool {
+        authService.isLockEnabled && !authService.isUnlocked
     }
     
     var body: some View {
@@ -32,6 +38,12 @@ struct ContentView: View {
                     .transition(.opacity)
                     .zIndex(3)
             }
+            
+            if shouldShowLockScreen && !showSplash {
+                LockScreenView()
+                    .transition(.opacity)
+                    .zIndex(4)
+            }
         }
         .onChange(of: showSplash) { _, newValue in
             if !newValue && shouldShowOnboarding {
@@ -43,6 +55,16 @@ struct ContentView: View {
         .onChange(of: showOnboarding) { _, newValue in
             if !newValue {
                 UserDefaults.standard.set(true, forKey: "com.mysubscribe.onboardingCompleted")
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background, .inactive:
+                authService.lock()
+            case .active:
+                break
+            @unknown default:
+                break
             }
         }
     }

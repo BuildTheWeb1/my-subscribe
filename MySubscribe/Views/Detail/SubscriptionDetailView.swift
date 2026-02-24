@@ -10,6 +10,7 @@ import SwiftUI
 struct SubscriptionDetailView: View {
     var store: SubscriptionStore
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.currencyService) private var currencyService
     
     let subscription: Subscription
     
@@ -75,7 +76,7 @@ struct SubscriptionDetailView: View {
                     .font(.title.bold())
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text(subscription.monthlyAmount.formattedAsCurrency)
+                Text(currencyService.format(subscription.monthlyAmount))
                     .font(.largeTitle.bold())
                     .foregroundStyle(AppColors.textPrimary)
                 
@@ -88,8 +89,8 @@ struct SubscriptionDetailView: View {
             VStack(spacing: 16) {
                 detailRow(title: String(localized: "Billing Cycle"), value: subscription.billingCycle.rawValue)
                 detailRow(title: String(localized: "Category"), value: subscription.category.rawValue)
-                detailRow(title: String(localized: "Yearly Cost"), value: subscription.yearlyAmount.formattedAsCurrency)
-                detailRow(title: String(localized: "Paid So Far"), value: subscription.paidSoFar.formattedAsCurrency)
+                detailRow(title: String(localized: "Yearly Cost"), value: currencyService.format(subscription.yearlyAmount))
+                detailRow(title: String(localized: "Paid So Far"), value: currencyService.format(subscription.paidSoFar))
                 detailRow(title: String(localized: "Started"), value: subscription.startDate.formatted(date: .abbreviated, time: .omitted))
             }
             .padding(20)

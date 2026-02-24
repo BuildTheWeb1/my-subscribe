@@ -53,48 +53,67 @@ struct HeaderView: View {
     let subscriptionCount: Int
     let onAddTapped: () -> Void
     let onChartsTapped: () -> Void
+    let onCalendarTapped: () -> Void
+    
+    @Environment(\.currencyService) private var currencyService
     
     private let lightImpact = UIImpactFeedbackGenerator(style: .light)
     private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            ZStack(alignment: .topTrailing) {
-                VStack(spacing: 8) {
-                    Text(String(localized: "Total Monthly"))
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Color.white.opacity(0.8))
-                    
-                    Text(totalMonthly.formattedAsCurrency)
-                        .font(.largeTitle.bold().width(.condensed))
-                        .foregroundStyle(Color.white)
-                    
-                    Text(String(localized: "~\(totalYearly.formattedAsCurrency)/year"))
-                        .font(.callout.weight(.medium))
-                        .foregroundStyle(Color.white.opacity(0.8))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 40)
-                .padding(.bottom, 60)
-                .padding(.horizontal, 20)
-                .background(AppColors.cardGradientBlue)
-                .clipShape(CurvedBottomShape())
-                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+            VStack(spacing: 8) {
+                Text(String(localized: "Total Monthly"))
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Color.white.opacity(0.8))
                 
-                Button {
-                    lightImpact.impactOccurred()
-                    onChartsTapped()
-                } label: {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.white.opacity(0.9))
-                        .padding(12)
-                        .background(Color.white.opacity(0.15))
-                        .clipShape(Circle())
+                Text(currencyService.format(totalMonthly))
+                    .font(.largeTitle.bold().width(.condensed))
+                    .foregroundStyle(Color.white)
+                
+                Text(String(localized: "~\(currencyService.format(totalYearly))/year"))
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(Color.white.opacity(0.8))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 40)
+            .padding(.bottom, 60)
+            .padding(.horizontal, 20)
+            .background(AppColors.cardGradientBlue)
+            .clipShape(CurvedBottomShape())
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+            .overlay(alignment: .top) {
+                HStack {
+                    Button {
+                        lightImpact.impactOccurred()
+                        onCalendarTapped()
+                    } label: {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.9))
+                            .padding(12)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    .accessibilityLabel(String(localized: "View calendar"))
+                    
+                    Spacer()
+                    
+                    Button {
+                        lightImpact.impactOccurred()
+                        onChartsTapped()
+                    } label: {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.9))
+                            .padding(12)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    .accessibilityLabel(String(localized: "View spending charts"))
                 }
-                .accessibilityLabel(String(localized: "View spending charts"))
+                .padding(.horizontal, 8)
                 .padding(.top, 12)
-                .padding(.trailing, 8)
             }
             
             Button {
@@ -125,7 +144,8 @@ struct HeaderView: View {
             totalYearly: 2361.12,
             subscriptionCount: 12,
             onAddTapped: {},
-            onChartsTapped: {}
+            onChartsTapped: {},
+            onCalendarTapped: {}
         )
         Spacer()
     }

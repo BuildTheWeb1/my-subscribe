@@ -86,6 +86,22 @@ struct Subscription: Identifiable, Codable, Equatable {
             return cost * Decimal(yearsPaid)
         }
     }
+    
+    var nextRenewalDate: Date {
+        let calendar = Calendar.current
+        let now = Date()
+        var date = startDate
+        
+        while date <= now {
+            switch billingCycle {
+            case .monthly:
+                date = calendar.date(byAdding: .month, value: 1, to: date) ?? date
+            case .yearly:
+                date = calendar.date(byAdding: .year, value: 1, to: date) ?? date
+            }
+        }
+        return date
+    }
 }
 
 // MARK: - Sample Data

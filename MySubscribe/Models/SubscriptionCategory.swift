@@ -42,4 +42,20 @@ enum SubscriptionCategory: String, Codable, CaseIterable, Identifiable {
     var color: Color {
         AppColors.categoryColor(for: self)
     }
+    
+    var colorHex: String {
+        switch self {
+        case .streaming: return "FF6B6B"
+        case .software: return "4ECDC4"
+        case .fitness: return "95E679"
+        case .productivity: return "5B8DEF"
+        case .gaming: return "A855F7"
+        case .music: return "4ECDC4"
+        case .news: return "FFB347"
+        case .cloud: return "5B8DEF"
+        case .education: return "FFB347"
+        case .utilities: return "6B7280"
+        case .other: return "9CA3AF"
+        }
+    }
 }

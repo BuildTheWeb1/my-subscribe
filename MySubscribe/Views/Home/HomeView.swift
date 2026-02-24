@@ -15,14 +15,22 @@ struct HomeView: View {
     @State private var showingDeleteAlert = false
     @State private var showingSaveErrorAlert = false
     @State private var showingChartsSheet = false
+    @State private var showingSettingsSheet = false
+    @State private var showingCalendarSheet = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    #if DEBUG
-    @State private var showingDebugConsole = false
-    #endif
+    @State private var showSettingsButton = true
+    @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
+    @State private var lastContentOffset: CGFloat = 0
+    
+    private let settingsImpact = UIImpactFeedbackGenerator(style: .light)
+    
+    private var hasSubscriptions: Bool {
+        !store.subscriptions.isEmpty
+    }
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack {
                 ScrollView {
                     VStack(spacing: 0) {
                         Color.clear
@@ -50,41 +58,64 @@ struct HomeView: View {
                             }
                         )
                         .padding(16)
+                        .padding(.bottom, 100)
                         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
                     }
                 }
+                .scrollPosition($scrollPosition)
                 .scrollIndicators(.hidden)
+                .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                    geometry.contentOffset.y
+                } action: { oldValue, newValue in
+                    handleScrollChange(oldOffset: oldValue, newOffset: newValue)
+                }
                 
-                HeaderView(
-                    totalMonthly: store.totalMonthlySpending,
-                    totalYearly: store.totalYearlyProjection,
-                    subscriptionCount: store.subscriptionCount,
-                    onAddTapped: {
-                        showingAddSheet = true
-                        AnalyticsService.shared.track(.addSheetOpened)
-                    },
-                    onChartsTapped: {
-                        showingChartsSheet = true
+                VStack {
+                    HeaderView(
+                        totalMonthly: store.totalMonthlySpending,
+                        totalYearly: store.totalYearlyProjection,
+                        subscriptionCount: store.subscriptionCount,
+                        onAddTapped: {
+                            showingAddSheet = true
+                            AnalyticsService.shared.track(.addSheetOpened)
+                        },
+                        onChartsTapped: {
+                            showingChartsSheet = true
+                        },
+                        onCalendarTapped: {
+                            showingCalendarSheet = true
+                        }
+                    )
+                    .padding(.horizontal, 16)
+                    .zIndex(1)
+                    
+                    Spacer()
+                        .allowsHitTesting(false)
+                    
+                    Button {
+                        settingsImpact.impactOccurred()
+                        showingSettingsSheet = true
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(AppColors.categoryFitness)
+                                .frame(width: 70, height: 70)
+                                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
+                            
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 28, weight: .semibold))
+                                .foregroundStyle(Color(hex: "272533"))
+                        }
                     }
-                )
-                .padding(.horizontal, 16)
+                    .accessibilityLabel(String(localized: "Settings"))
+                    .padding(.bottom, 8)
+                    .scaleEffect(showSettingsButton ? 1 : 0.6)
+                    .opacity(showSettingsButton ? 1 : 0)
+                    .offset(y: showSettingsButton ? 0 : 60)
+                    .allowsHitTesting(showSettingsButton)
+                }
             }
             .background(AppColors.background)
-//            .navigationTitle("MySubscribe")
-            .toolbar {
-                #if DEBUG
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showingDebugConsole = true
-                    } label: {
-                        Image(systemName: "ladybug")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(AppColors.textPrimary)
-                    }
-                    .accessibilityLabel("Debug console")
-                }
-                #endif
-            }
             .sheet(isPresented: $showingAddSheet) {
                 AddSubscriptionView(store: store)
             }
@@ -111,13 +142,14 @@ struct HomeView: View {
                     Text(String(localized: "Are you sure you want to delete \(sub.name)?"))
                 }
             }
-            #if DEBUG
-            .sheet(isPresented: $showingDebugConsole) {
-                DebugConsoleView(subscriptions: store.subscriptions)
-            }
-            #endif
             .sheet(isPresented: $showingChartsSheet) {
                 ChartsView(subscriptions: store.subscriptions)
+            }
+            .sheet(isPresented: $showingSettingsSheet) {
+                SettingsView()
+            }
+            .sheet(isPresented: $showingCalendarSheet) {
+                CalendarView(subscriptions: store.subscriptions)
             }
             .onChange(of: store.saveError) { _, newValue in
                 showingSaveErrorAlert = newValue != nil
@@ -138,6 +170,34 @@ struct HomeView: View {
                         store.clearRecentlyModified()
                     }
                 }
+            }
+        }
+    }
+    
+    private func handleScrollChange(oldOffset: CGFloat, newOffset: CGFloat) {
+        guard hasSubscriptions else {
+            if !showSettingsButton {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    showSettingsButton = true
+                }
+            }
+            return
+        }
+        
+        // contentOffset.y increases when scrolling DOWN
+        // contentOffset.y decreases when scrolling UP
+        let delta = newOffset - oldOffset
+        let threshold: CGFloat = 10
+        
+        if delta > threshold && showSettingsButton {
+            // Scrolling down - hide button
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                showSettingsButton = false
+            }
+        } else if delta < -threshold && !showSettingsButton {
+            // Scrolling up - show button
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                showSettingsButton = true
             }
         }
     }
