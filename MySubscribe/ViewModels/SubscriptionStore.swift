@@ -99,15 +99,18 @@ final class SubscriptionStore {
         loadError = nil
         guard let data = UserDefaults.standard.data(forKey: storageKey) else {
             subscriptions = []
+            updateWidgetData()
             return
         }
         
         do {
             subscriptions = try decoder.decode([Subscription].self, from: data)
+            updateWidgetData()
         } catch {
             print("❌ Failed to load subscriptions: \(error)")
             loadError = String(localized: "Unable to load your subscriptions. Data may be corrupted.")
             subscriptions = []
+            updateWidgetData()
         }
     }
     
@@ -153,6 +156,13 @@ final class SubscriptionStore {
         
         WidgetDataProvider.save(widgetData)
         WidgetCenter.shared.reloadAllTimelines()
+        
+        #if DEBUG
+        print("📊 Widget data updated: \(subscriptionCount) subscriptions, total: \(totalMonthlySpending)")
+        if SharedConstants.sharedDefaults == nil {
+            print("⚠️ App Group not available - check entitlements and provisioning")
+        }
+        #endif
     }
     
     func dismissSaveError() {

@@ -24,9 +24,14 @@ struct SubscriptionProvider: TimelineProvider {
     }
     
     func getSnapshot(in context: Context, completion: @escaping (SubscriptionEntry) -> Void) {
-        let data = WidgetDataProvider.load()
-        let entry = SubscriptionEntry(date: Date(), data: data)
-        completion(entry)
+        if context.isPreview {
+            let entry = SubscriptionEntry(date: Date(), data: .placeholder)
+            completion(entry)
+        } else {
+            let data = WidgetDataProvider.load()
+            let entry = SubscriptionEntry(date: Date(), data: data)
+            completion(entry)
+        }
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<SubscriptionEntry>) -> Void) {
