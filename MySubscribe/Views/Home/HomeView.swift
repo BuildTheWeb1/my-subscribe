@@ -34,7 +34,7 @@ struct HomeView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         Color.clear
-                            .frame(height: 260)
+                            .frame(height: 200)
                         
                         SubscriptionGridView(
                             subscriptions: store.subscriptions,
@@ -86,7 +86,6 @@ struct HomeView: View {
                             showingCalendarSheet = true
                         }
                     )
-                    .padding(.horizontal, 16)
                     .zIndex(1)
                     
                     Spacer()
@@ -97,18 +96,18 @@ struct HomeView: View {
                         showingSettingsSheet = true
                     } label: {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(AppColors.categoryFitness)
-                                .frame(width: 70, height: 70)
-                                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 4)
+                            Circle()
+                                .fill(Color.black)
+                                .frame(width: 58, height: 58)
+                                .shadow(color: Color.black.opacity(0.22), radius: 10, x: 0, y: 4)
                             
                             Image(systemName: "gearshape.fill")
-                                .font(.system(size: 28, weight: .semibold))
-                                .foregroundStyle(Color(hex: "272533"))
+                                .font(.system(size: 23, weight: .semibold))
+                                .foregroundStyle(AppColors.categoryFitness)
                         }
                     }
                     .accessibilityLabel(String(localized: "Settings"))
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 0)
                     .scaleEffect(showSettingsButton ? 1 : 0.6)
                     .opacity(showSettingsButton ? 1 : 0)
                     .offset(y: showSettingsButton ? 0 : 60)

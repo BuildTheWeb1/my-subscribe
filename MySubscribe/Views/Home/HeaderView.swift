@@ -8,19 +8,13 @@
 import SwiftUI
 
 struct CurvedBottomShape: Shape {
-    var cornerRadius: CGFloat = 24
-    
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let curveDepth: CGFloat = 40
         let bottomInset: CGFloat = 30
         
-        path.move(to: CGPoint(x: cornerRadius, y: 0))
-        path.addLine(to: CGPoint(x: rect.width - cornerRadius, y: 0))
-        path.addQuadCurve(
-            to: CGPoint(x: rect.width, y: cornerRadius),
-            control: CGPoint(x: rect.width, y: 0)
-        )
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: rect.width, y: 0))
         
         path.addLine(to: CGPoint(x: rect.width, y: rect.height - curveDepth - bottomInset))
         
@@ -34,12 +28,6 @@ struct CurvedBottomShape: Shape {
             to: CGPoint(x: 0, y: rect.height - curveDepth - bottomInset),
             control1: CGPoint(x: rect.width * 0.25, y: rect.height),
             control2: CGPoint(x: 0, y: rect.height - bottomInset)
-        )
-        
-        path.addLine(to: CGPoint(x: 0, y: cornerRadius))
-        path.addQuadCurve(
-            to: CGPoint(x: cornerRadius, y: 0),
-            control: CGPoint(x: 0, y: 0)
         )
         
         path.closeSubpath()
@@ -76,12 +64,14 @@ struct HeaderView: View {
                     .foregroundStyle(Color.white.opacity(0.8))
             }
             .frame(maxWidth: .infinity)
-            .padding(.top, 40)
-            .padding(.bottom, 60)
+            .padding(.bottom, 72)
             .padding(.horizontal, 20)
+            .safeAreaPadding(.top)
+            .padding(.top, 48)
             .background(AppColors.cardGradientBlue)
             .clipShape(CurvedBottomShape())
             .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+            .ignoresSafeArea(edges: .top)
             .overlay(alignment: .top) {
                 HStack {
                     Button {
@@ -112,7 +102,8 @@ struct HeaderView: View {
                     }
                     .accessibilityLabel(String(localized: "View spending charts"))
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 16)
+                .safeAreaPadding(.top)
                 .padding(.top, 12)
             }
             
@@ -132,7 +123,7 @@ struct HeaderView: View {
                 }
             }
             .accessibilityLabel(String(localized: "Add subscription"))
-            .offset(y: 40)
+            .offset(y: -25)
         }
     }
 }
