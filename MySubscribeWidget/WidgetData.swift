@@ -35,6 +35,7 @@ struct WidgetSubscriptionData: Codable {
                 name: "Netflix",
                 amount: 15.99,
                 renewalDate: Date().addingTimeInterval(86400 * 3),
+                billingCycleLabel: String(localized: "monthly"),
                 categoryIcon: "play.tv.fill",
                 categoryColorHex: "FF6B6B"
             ),
@@ -43,6 +44,7 @@ struct WidgetSubscriptionData: Codable {
                 name: "Spotify",
                 amount: 10.99,
                 renewalDate: Date().addingTimeInterval(86400 * 7),
+                billingCycleLabel: String(localized: "monthly"),
                 categoryIcon: "music.note",
                 categoryColorHex: "4ECDC4"
             ),
@@ -51,6 +53,7 @@ struct WidgetSubscriptionData: Codable {
                 name: "iCloud+",
                 amount: 2.99,
                 renewalDate: Date().addingTimeInterval(86400 * 12),
+                billingCycleLabel: String(localized: "monthly"),
                 categoryIcon: "cloud.fill",
                 categoryColorHex: "5B8DEF"
             )
@@ -65,6 +68,7 @@ struct WidgetRenewalItem: Codable, Identifiable {
     let name: String
     let amount: Decimal
     let renewalDate: Date
+    let billingCycleLabel: String?
     let categoryIcon: String
     let categoryColorHex: String
 }

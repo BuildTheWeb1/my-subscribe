@@ -15,7 +15,7 @@ struct DayDetailSheet: View {
     @Environment(\.currencyService) private var currencyService
     
     private var totalForDay: Decimal {
-        subscriptions.reduce(Decimal.zero) { $0 + $1.monthlyAmount }
+        subscriptions.reduce(Decimal.zero) { $0 + $1.cost }
     }
     
     var body: some View {
@@ -79,7 +79,7 @@ struct DayDetailSheet: View {
                     .font(.body.weight(.semibold))
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text(subscription.billingCycle.displaySuffix)
+                Text(subscription.billingCycle.displayLabel)
                     .font(.caption)
                     .foregroundStyle(AppColors.textSecondary)
             }

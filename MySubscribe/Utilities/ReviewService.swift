@@ -8,6 +8,7 @@
 import Foundation
 import StoreKit
 import OSLog
+import UIKit
 
 final class ReviewService {
     static let shared = ReviewService()
@@ -23,6 +24,7 @@ final class ReviewService {
     private let minimumSubscriptionsAdded = 2
     private let minimumDaysSinceInstall = 7
     private let minimumDaysBetweenRequests = 120
+    private let appStoreIDKey = "APP_STORE_ID"
     
     private init() {}
     
@@ -61,11 +63,23 @@ final class ReviewService {
     @MainActor
     func forceRequestReview() {
         logger.info("Force requesting review (debug only)")
-        presentReviewPrompt()
+        presentReviewPrompt(trackCooldown: false)
+    }
+
+    @MainActor
+    func requestAppStoreRating() {
+        if openAppStoreReviewPage() {
+            logger.info("Opened App Store write-review page")
+            UserDefaults.standard.set(Date(), forKey: lastReviewRequestKey)
+            return
+        }
+
+        logger.info("Falling back to in-app review prompt")
+        presentReviewPrompt(trackCooldown: false)
     }
     
     @MainActor
-    private func presentReviewPrompt() {
+    private func presentReviewPrompt(trackCooldown: Bool = true) {
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))
             
@@ -77,9 +91,29 @@ final class ReviewService {
             }
             
             logger.info("Presenting review prompt")
-            AppStore.requestReview(in: windowScene)
-            UserDefaults.standard.set(Date(), forKey: lastReviewRequestKey)
+            SKStoreReviewController.requestReview(in: windowScene)
+            if trackCooldown {
+                UserDefaults.standard.set(Date(), forKey: lastReviewRequestKey)
+            }
         }
+    }
+
+    @MainActor
+    private func openAppStoreReviewPage() -> Bool {
+        guard let appStoreID = Bundle.main.object(forInfoDictionaryKey: appStoreIDKey) as? String,
+              !appStoreID.isEmpty,
+              let url = URL(string: "https://apps.apple.com/app/id\(appStoreID)?action=write-review") else {
+            logger.warning("APP_STORE_ID is missing; cannot open write-review page")
+            return false
+        }
+
+        guard UIApplication.shared.canOpenURL(url) else {
+            logger.warning("Cannot open App Store review URL")
+            return false
+        }
+
+        UIApplication.shared.open(url)
+        return true
     }
     
     private func evaluateReviewConditions() -> (shouldRequest: Bool, reason: String) {

@@ -13,10 +13,11 @@ struct ContentView: View {
     @State private var showOnboarding = false
     @State private var authService = AuthenticationService.shared
     @Environment(\.scenePhase) private var scenePhase
+    private let onboardingCompletedKey = "com.mysubscribe.onboardingCompleted"
     
     private var shouldShowOnboarding: Bool {
-        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "com.mysubscribe.onboardingCompleted")
-        return !hasCompletedOnboarding || store.subscriptions.isEmpty
+        let hasCompletedOnboarding = UserDefaults.standard.bool(forKey: onboardingCompletedKey)
+        return !hasCompletedOnboarding
     }
     
     private var shouldShowLockScreen: Bool {
@@ -54,7 +55,15 @@ struct ContentView: View {
         }
         .onChange(of: showOnboarding) { _, newValue in
             if !newValue {
-                UserDefaults.standard.set(true, forKey: "com.mysubscribe.onboardingCompleted")
+                UserDefaults.standard.set(true, forKey: onboardingCompletedKey)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            guard !showSplash, !showOnboarding, shouldShowOnboarding else { return }
+            Task { @MainActor in
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showOnboarding = true
+                }
             }
         }
         .onChange(of: scenePhase) { _, newPhase in

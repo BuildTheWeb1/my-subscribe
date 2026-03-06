@@ -169,9 +169,10 @@ struct CalendarView: View {
                     .font(.caption.weight(.medium))
                     .foregroundStyle(AppColors.textPrimary)
                 
-                Text(currencyService.format(subscription.monthlyAmount))
+                Text("\(currencyService.format(subscription.cost)) / \(subscription.billingCycle.displayLabel)")
                     .font(.caption)
                     .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
             }
         }
         .padding(.vertical, 4)

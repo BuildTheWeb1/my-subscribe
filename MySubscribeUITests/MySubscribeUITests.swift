@@ -21,6 +21,22 @@ final class MySubscribeUITests: XCTestCase {
         app = nil
     }
 
+    private func dismissOnboardingIfNeeded() {
+        let onboardingTitle = app.staticTexts["Add a Subscription"]
+        guard onboardingTitle.waitForExistence(timeout: 2) else { return }
+
+        for _ in 0..<3 {
+            if app.buttons["Done"].exists {
+                break
+            }
+            app.swipeLeft()
+        }
+
+        if app.buttons["Done"].waitForExistence(timeout: 2) {
+            app.buttons["Done"].tap()
+        }
+    }
+
     @MainActor
     func testHomeViewLoads() throws {
         // Verify header elements exist
@@ -131,6 +147,28 @@ final class MySubscribeUITests: XCTestCase {
         
         // Close currency picker
         app.buttons["xmark"].tap()
+    }
+
+    @MainActor
+    func testResetOnboardingShowsOnboardingAgain() throws {
+        dismissOnboardingIfNeeded()
+
+        let settingsButton = app.buttons["Settings"]
+        XCTAssertTrue(settingsButton.waitForExistence(timeout: 5))
+        settingsButton.tap()
+
+        let resetOnboardingButton = app.buttons["Reset Onboarding"]
+        if !resetOnboardingButton.waitForExistence(timeout: 3) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(resetOnboardingButton.waitForExistence(timeout: 3))
+        resetOnboardingButton.tap()
+
+        let resetConfirmButton = app.buttons["Reset"]
+        XCTAssertTrue(resetConfirmButton.waitForExistence(timeout: 3))
+        resetConfirmButton.tap()
+
+        XCTAssertTrue(app.staticTexts["Add a Subscription"].waitForExistence(timeout: 5))
     }
 
     @MainActor

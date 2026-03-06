@@ -11,14 +11,16 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var authService = AuthenticationService.shared
     @Environment(\.currencyService) private var currencyService
-    @State private var showingLockToggleAlert = false
+    @State private var showingResetOnboardingAlert = false
     @State private var showingCurrencyPicker = false
+    private let onboardingCompletedKey = "com.mysubscribe.onboardingCompleted"
     
     var body: some View {
         NavigationStack {
             List {
                 currencySection
                 securitySection
+                supportSection
                 aboutSection
             }
             .navigationTitle(String(localized: "Settings"))
@@ -45,6 +47,15 @@ struct SettingsView: View {
         }
         .onAppear {
             authService.refreshBiometryAvailability()
+        }
+        .alert(String(localized: "Reset onboarding?"), isPresented: $showingResetOnboardingAlert) {
+            Button(String(localized: "Cancel"), role: .cancel) { }
+            Button(String(localized: "Reset"), role: .destructive) {
+                UserDefaults.standard.set(false, forKey: onboardingCompletedKey)
+                dismiss()
+            }
+        } message: {
+            Text(String(localized: "Onboarding will be shown again the next time you open the app."))
         }
     }
     
@@ -169,6 +180,35 @@ struct SettingsView: View {
             }
         } header: {
             Text(String(localized: "About"))
+        }
+    }
+
+    private var supportSection: some View {
+        Section {
+            Button {
+                Task { @MainActor in
+                    ReviewService.shared.requestAppStoreRating()
+                }
+            } label: {
+                Label {
+                    Text(String(localized: "Rate MySubscribe"))
+                } icon: {
+                    Image(systemName: "star.bubble.fill")
+                        .foregroundStyle(AppColors.categoryFitness)
+                }
+            }
+
+            Button(role: .destructive) {
+                showingResetOnboardingAlert = true
+            } label: {
+                Label {
+                    Text(String(localized: "Reset Onboarding"))
+                } icon: {
+                    Image(systemName: "arrow.counterclockwise")
+                }
+            }
+        } header: {
+            Text(String(localized: "Support"))
         }
     }
     

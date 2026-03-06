@@ -59,6 +59,13 @@ struct Subscription: Identifiable, Codable, Equatable {
             case .yearly: return "/yr"
             }
         }
+
+        var displayLabel: String {
+            switch self {
+            case .monthly: return String(localized: "monthly")
+            case .yearly: return String(localized: "yearly")
+            }
+        }
     }
     
     var monthlyAmount: Decimal {

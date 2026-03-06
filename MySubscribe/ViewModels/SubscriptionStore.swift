@@ -138,8 +138,9 @@ final class SubscriptionStore {
                 WidgetRenewalItem(
                     id: subscription.id,
                     name: subscription.name,
-                    amount: subscription.monthlyAmount,
+                    amount: subscription.cost,
                     renewalDate: subscription.nextRenewalDate,
+                    billingCycleLabel: subscription.billingCycle.displayLabel,
                     categoryIcon: subscription.category.systemIcon,
                     categoryColorHex: subscription.category.colorHex
                 )

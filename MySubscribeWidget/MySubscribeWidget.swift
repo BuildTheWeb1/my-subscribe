@@ -123,10 +123,16 @@ struct MediumWidgetView: View {
                                 .lineLimit(1)
                             
                             Spacer()
-                            
-                            Text(renewal.renewalDate, format: .dateTime.month(.abbreviated).day())
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text("\(formatCurrency(renewal.amount, code: data.currencyCode)) / \(renewal.billingCycleLabel ?? "monthly")")
+                                    .font(.caption2)
+                                    .lineLimit(1)
+
+                                Text(renewal.renewalDate, format: .dateTime.month(.abbreviated).day())
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -190,8 +196,9 @@ struct LargeWidgetView: View {
                             
                             Spacer()
                             
-                            Text(formatCurrency(renewal.amount, code: data.currencyCode))
+                            Text("\(formatCurrency(renewal.amount, code: data.currencyCode)) / \(renewal.billingCycleLabel ?? "monthly")")
                                 .font(.caption.weight(.medium))
+                                .lineLimit(1)
                             
                             Text(renewal.renewalDate, format: .dateTime.month(.abbreviated).day())
                                 .font(.caption)
