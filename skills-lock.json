@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "swiftui-expert-skill": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "07425844b7dd8682926bac61ddae9748554cde64d52f38cf79ddc41075b8e9eb"
+    }
+  }
+}
