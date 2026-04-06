@@ -17,16 +17,14 @@ struct HomeView: View {
     @State private var showingChartsSheet = false
     @State private var showingSettingsSheet = false
     @State private var showingCalendarSheet = false
+    @State private var showingInactiveSheet = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var showSettingsButton = true
     @State private var scrollPosition: ScrollPosition = .init(idType: String.self)
-    @State private var lastContentOffset: CGFloat = 0
-    
-    private let settingsImpact = UIImpactFeedbackGenerator(style: .light)
     
     private var hasSubscriptions: Bool {
         !store.activeSubscriptions.isEmpty || !store.cancelledSubscriptions.isEmpty
     }
+
     
     var body: some View {
         NavigationStack {
@@ -62,27 +60,18 @@ struct HomeView: View {
                             }
                         )
                         .padding(16)
-                        .padding(.bottom, 100)
+                        .padding(.bottom, 130)
                         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.activeSubscriptions.count)
                     }
                 }
                 .scrollPosition($scrollPosition)
                 .scrollIndicators(.hidden)
-                .onScrollGeometryChange(for: CGFloat.self) { geometry in
-                    geometry.contentOffset.y
-                } action: { oldValue, newValue in
-                    handleScrollChange(oldOffset: oldValue, newOffset: newValue)
-                }
                 
                 VStack {
                     HeaderView(
                         totalMonthly: store.totalMonthlySpending,
                         totalYearly: store.totalYearlyProjection,
                         subscriptionCount: store.subscriptionCount,
-                        onAddTapped: {
-                            showingAddSheet = true
-                            AnalyticsService.shared.track(.addSheetOpened)
-                        },
                         onChartsTapped: {
                             showingChartsSheet = true
                         },
@@ -91,31 +80,23 @@ struct HomeView: View {
                         }
                     )
                     .zIndex(1)
-                    
+
                     Spacer()
                         .allowsHitTesting(false)
-                    
-                    Button {
-                        settingsImpact.impactOccurred()
-                        showingSettingsSheet = true
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(Color.black)
-                                .frame(width: 58, height: 58)
-                                .shadow(color: Color.black.opacity(0.22), radius: 10, x: 0, y: 4)
-                            
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 23, weight: .semibold))
-                                .foregroundStyle(AppColors.categoryFitness)
+
+                    CustomTabBar(
+                        inactiveCount: store.cancelledSubscriptions.count,
+                        onInactiveTapped: {
+                            showingInactiveSheet = true
+                        },
+                        onAddTapped: {
+                            showingAddSheet = true
+                            AnalyticsService.shared.track(.addSheetOpened)
+                        },
+                        onSettingsTapped: {
+                            showingSettingsSheet = true
                         }
-                    }
-                    .accessibilityLabel(String(localized: "Settings"))
-                    .padding(.bottom, 0)
-                    .scaleEffect(showSettingsButton ? 1 : 0.6)
-                    .opacity(showSettingsButton ? 1 : 0)
-                    .offset(y: showSettingsButton ? 0 : 60)
-                    .allowsHitTesting(showSettingsButton)
+                    )
                 }
             }
             .background(AppColors.background)
@@ -154,6 +135,9 @@ struct HomeView: View {
             .sheet(isPresented: $showingCalendarSheet) {
                 CalendarView(subscriptions: store.activeSubscriptions)
             }
+            .sheet(isPresented: $showingInactiveSheet) {
+                InactiveSubscriptionsView(store: store)
+            }
             .onChange(of: store.saveError) { _, newValue in
                 showingSaveErrorAlert = newValue != nil
             }
@@ -177,33 +161,6 @@ struct HomeView: View {
         }
     }
     
-    private func handleScrollChange(oldOffset: CGFloat, newOffset: CGFloat) {
-        guard hasSubscriptions else {
-            if !showSettingsButton {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    showSettingsButton = true
-                }
-            }
-            return
-        }
-        
-        // contentOffset.y increases when scrolling DOWN
-        // contentOffset.y decreases when scrolling UP
-        let delta = newOffset - oldOffset
-        let threshold: CGFloat = 10
-        
-        if delta > threshold && showSettingsButton {
-            // Scrolling down - hide button
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                showSettingsButton = false
-            }
-        } else if delta < -threshold && !showSettingsButton {
-            // Scrolling up - show button
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                showSettingsButton = true
-            }
-        }
-    }
 }
 
 #Preview {

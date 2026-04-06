@@ -39,14 +39,12 @@ struct HeaderView: View {
     let totalMonthly: Decimal
     let totalYearly: Decimal
     let subscriptionCount: Int
-    let onAddTapped: () -> Void
     let onChartsTapped: () -> Void
     let onCalendarTapped: () -> Void
     
     @Environment(\.currencyService) private var currencyService
     
     private let lightImpact = UIImpactFeedbackGenerator(style: .light)
-    private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -107,23 +105,6 @@ struct HeaderView: View {
                 .padding(.top, 12)
             }
             
-            Button {
-                mediumImpact.impactOccurred()
-                onAddTapped()
-            } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(AppColors.categoryFitness)
-                        .frame(width: 70, height: 70)
-                        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
-                    
-                    Image(systemName: "plus")
-                        .font(.system(size: 28, weight: .semibold))
-                        .foregroundStyle(Color(hex: "272533"))
-                }
-            }
-            .accessibilityLabel(String(localized: "Add subscription"))
-            .offset(y: -25)
         }
     }
 }
@@ -134,7 +115,6 @@ struct HeaderView: View {
             totalMonthly: 196.76,
             totalYearly: 2361.12,
             subscriptionCount: 12,
-            onAddTapped: {},
             onChartsTapped: {},
             onCalendarTapped: {}
         )
