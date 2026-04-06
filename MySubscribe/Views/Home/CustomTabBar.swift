@@ -77,16 +77,28 @@ struct CustomTabBar: View {
     private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     private let lightImpact = UIImpactFeedbackGenerator(style: .light)
 
+    private var bottomSafeArea: CGFloat {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?
+            .keyWindow?
+            .safeAreaInsets.bottom ?? 0
+    }
+
     var body: some View {
+        let bottomPad = bottomSafeArea
         ZStack(alignment: .top) {
-            // Bar background with notch
+            // Background fills the entire area including the safe area zone below
+            Color(.systemBackground)
+
+            // Bar background with notch — extended to cover the safe area below
             TabBarNotchShape()
                 .fill(Color(.systemBackground))
                 .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: -4)
-                .frame(height: barHeight)
+                .frame(height: barHeight + bottomPad)
                 .offset(y: centerButtonElevation)
 
-            // Side buttons row (inside bar, below the notch)
+            // Side buttons row — bottom-padded so labels sit above the home indicator
             HStack(spacing: 0) {
                 // Left: Inactive subscriptions
                 sideButton(
@@ -113,7 +125,8 @@ struct CustomTabBar: View {
                 }
             }
             .padding(.horizontal, 36)
-            .frame(height: barHeight)
+            .padding(.bottom, bottomPad)
+            .frame(height: barHeight + bottomPad)
             .offset(y: centerButtonElevation)
 
             // Center elevated add button
@@ -140,12 +153,7 @@ struct CustomTabBar: View {
             .accessibilityLabel(String(localized: "Add subscription"))
         }
         .frame(height: barHeight + centerButtonElevation)
-        .background(alignment: .bottom) {
-            // Only the background fill extends into the safe area (home indicator zone)
-            // Tab bar content stays above it naturally
-            Color(.systemBackground)
-                .ignoresSafeArea(edges: .bottom)
-        }
+        .ignoresSafeArea(edges: .bottom)
     }
 
     @ViewBuilder
