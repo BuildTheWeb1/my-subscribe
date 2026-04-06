@@ -33,13 +33,17 @@ struct ScrollFadeModifier: ViewModifier {
 
 struct SubscriptionGridView: View {
     let subscriptions: [Subscription]
+    let cancelledSubscriptions: [Subscription]
     let totalMonthly: Decimal
     let loadError: String?
     let recentlyModifiedId: UUID?
     let onTap: (Subscription) -> Void
     let onDelete: (UUID) -> Void
+    let onReactivate: (UUID) -> Void
     let onRetry: () -> Void
-    
+
+    @State private var showingInactive = false
+
     private let spacing: CGFloat = 12
     private let impactGenerator = UIImpactFeedbackGenerator(style: .light)
     
@@ -72,24 +76,86 @@ struct SubscriptionGridView: View {
     var body: some View {
         if let error = loadError {
             errorStateView(message: error)
-        } else if subscriptions.isEmpty {
+        } else if subscriptions.isEmpty && cancelledSubscriptions.isEmpty {
             emptyStateView
         } else {
-            let columns = masonryColumns
-            HStack(alignment: .top, spacing: spacing) {
-                VStack(spacing: spacing) {
-                    ForEach(Array(columns.left.enumerated()), id: \.element.0.id) { index, item in
-                        cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
-                            .modifier(ScrollFadeModifier(index: index))
+            VStack(spacing: 20) {
+                if !subscriptions.isEmpty {
+                    let columns = masonryColumns
+                    HStack(alignment: .top, spacing: spacing) {
+                        VStack(spacing: spacing) {
+                            ForEach(Array(columns.left.enumerated()), id: \.element.0.id) { index, item in
+                                cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
+                                    .modifier(ScrollFadeModifier(index: index))
+                            }
+                        }
+
+                        VStack(spacing: spacing) {
+                            ForEach(Array(columns.right.enumerated()), id: \.element.0.id) { index, item in
+                                cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
+                                    .modifier(ScrollFadeModifier(index: columns.left.count + index))
+                            }
+                        }
                     }
                 }
-                
-                VStack(spacing: spacing) {
-                    ForEach(Array(columns.right.enumerated()), id: \.element.0.id) { index, item in
-                        cardButton(item.0, size: item.1, height: cardHeight(for: item.1))
-                            .modifier(ScrollFadeModifier(index: columns.left.count + index))
+
+                if !cancelledSubscriptions.isEmpty {
+                    inactiveSection
+                }
+            }
+        }
+    }
+
+    private var inactiveSection: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    showingInactive.toggle()
+                }
+            } label: {
+                HStack {
+                    Text(String(localized: "Inactive (\(cancelledSubscriptions.count))"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(AppColors.textSecondary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppColors.textSecondary)
+                        .rotationEffect(.degrees(showingInactive ? 90 : 0))
+                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showingInactive)
+                }
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Inactive subscriptions, \(cancelledSubscriptions.count) items"))
+            .accessibilityHint(String(localized: showingInactive ? "Double tap to collapse" : "Double tap to expand"))
+
+            Divider()
+
+            if showingInactive {
+                VStack(spacing: 0) {
+                    ForEach(cancelledSubscriptions) { subscription in
+                        CancelledSubscriptionRow(subscription: subscription) {
+                            impactGenerator.impactOccurred()
+                            onTap(subscription)
+                        }
+                        .contextMenu {
+                            Button {
+                                onReactivate(subscription.id)
+                            } label: {
+                                Label(String(localized: "Reactivate"), systemImage: "play.circle")
+                            }
+                            Button(role: .destructive) {
+                                onDelete(subscription.id)
+                            } label: {
+                                Label(String(localized: "Delete"), systemImage: "trash")
+                            }
+                        }
+                        Divider().padding(.leading, 56)
                     }
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
     }
@@ -197,15 +263,69 @@ struct SubscriptionGridView: View {
     }
 }
 
+// MARK: - Cancelled Subscription Row
+
+private struct CancelledSubscriptionRow: View {
+    let subscription: Subscription
+    let onTap: () -> Void
+
+    private var categoryColor: Color {
+        if let hex = subscription.customColor {
+            return Color(hex: hex)
+        }
+        return AppColors.categoryColor(for: subscription.category)
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(categoryColor.opacity(0.5))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: subscription.category.systemIcon)
+                        .font(.body)
+                        .foregroundStyle(AppColors.textColor(for: categoryColor).opacity(0.5))
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(subscription.name)
+                        .font(.body.weight(.medium))
+                        .strikethrough(true, color: AppColors.textSecondary)
+                        .foregroundStyle(AppColors.textSecondary)
+                    if let endDate = subscription.endDate {
+                        Text(String(localized: "Cancelled \(endDate.formatted(date: .abbreviated, time: .omitted))"))
+                            .font(.caption)
+                            .foregroundStyle(AppColors.textSecondary.opacity(0.7))
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppColors.textSecondary.opacity(0.4))
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "\(subscription.name), cancelled\(subscription.endDate.map { " on \($0.formatted(date: .abbreviated, time: .omitted))" } ?? "")"))
+        .accessibilityHint(String(localized: "Double tap to view details"))
+    }
+}
+
 #Preview {
     ScrollView {
         SubscriptionGridView(
             subscriptions: Subscription.samples,
+            cancelledSubscriptions: [],
             totalMonthly: 196.76,
             loadError: nil,
             recentlyModifiedId: nil,
             onTap: { _ in },
             onDelete: { _ in },
+            onReactivate: { _ in },
             onRetry: {}
         )
         .padding()

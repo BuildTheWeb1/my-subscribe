@@ -26,21 +26,29 @@ final class SubscriptionStore {
     }
     
     // MARK: - Computed Properties
-    
-    var totalMonthlySpending: Decimal {
-        subscriptions.reduce(Decimal.zero) { $0 + $1.monthlyAmount }
+
+    var activeSubscriptions: [Subscription] {
+        subscriptions.filter { $0.isActive }
     }
-    
+
+    var cancelledSubscriptions: [Subscription] {
+        subscriptions.filter { $0.isCancelled }
+    }
+
+    var totalMonthlySpending: Decimal {
+        activeSubscriptions.reduce(Decimal.zero) { $0 + $1.monthlyAmount }
+    }
+
     var totalYearlyProjection: Decimal {
         totalMonthlySpending * 12
     }
-    
+
     var subscriptionCount: Int {
-        subscriptions.count
+        activeSubscriptions.count
     }
-    
+
     var sortedSubscriptions: [Subscription] {
-        subscriptions.sorted { $0.monthlyAmount > $1.monthlyAmount }
+        activeSubscriptions.sorted { $0.monthlyAmount > $1.monthlyAmount }
     }
     
     // MARK: - CRUD Operations
@@ -67,7 +75,9 @@ final class SubscriptionStore {
             customColor: subscription.customColor,
             startDate: subscription.startDate,
             createdAt: subscription.createdAt,
-            updatedAt: Date()
+            updatedAt: Date(),
+            status: subscription.status,
+            endDate: subscription.endDate
         )
         subscriptions[index] = updated
         saveSubscriptions()
@@ -76,7 +86,33 @@ final class SubscriptionStore {
             "category": subscription.category.rawValue
         ])
     }
-    
+
+    func stopSubscription(id: UUID, endDate: Date = Date()) {
+        guard let index = subscriptions.firstIndex(where: { $0.id == id }) else { return }
+        subscriptions[index].status = .cancelled
+        subscriptions[index].endDate = endDate
+        subscriptions[index].updatedAt = Date()
+        saveSubscriptions()
+        recentlyModifiedId = subscriptions[index].id
+        AnalyticsService.shared.track(.subscriptionStopped, properties: [
+            "category": subscriptions[index].category.rawValue,
+            "billing_cycle": subscriptions[index].billingCycle.rawValue
+        ])
+    }
+
+    func reactivateSubscription(id: UUID) {
+        guard let index = subscriptions.firstIndex(where: { $0.id == id }) else { return }
+        subscriptions[index].status = .active
+        subscriptions[index].endDate = nil
+        subscriptions[index].updatedAt = Date()
+        saveSubscriptions()
+        recentlyModifiedId = subscriptions[index].id
+        AnalyticsService.shared.track(.subscriptionReactivated, properties: [
+            "category": subscriptions[index].category.rawValue,
+            "billing_cycle": subscriptions[index].billingCycle.rawValue
+        ])
+    }
+
     func deleteSubscription(id: UUID) {
         let category = subscriptions.first(where: { $0.id == id })?.category.rawValue
         subscriptions.removeAll { $0.id == id }
@@ -131,7 +167,7 @@ final class SubscriptionStore {
     }
     
     private func updateWidgetData() {
-        let upcomingRenewals = subscriptions
+        let upcomingRenewals = activeSubscriptions
             .sorted { $0.nextRenewalDate < $1.nextRenewalDate }
             .prefix(5)
             .map { subscription in

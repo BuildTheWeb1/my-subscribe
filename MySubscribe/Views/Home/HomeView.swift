@@ -25,7 +25,7 @@ struct HomeView: View {
     private let settingsImpact = UIImpactFeedbackGenerator(style: .light)
     
     private var hasSubscriptions: Bool {
-        !store.subscriptions.isEmpty
+        !store.activeSubscriptions.isEmpty || !store.cancelledSubscriptions.isEmpty
     }
     
     var body: some View {
@@ -37,7 +37,8 @@ struct HomeView: View {
                             .frame(height: 200)
                         
                         SubscriptionGridView(
-                            subscriptions: store.subscriptions,
+                            subscriptions: store.activeSubscriptions,
+                            cancelledSubscriptions: store.cancelledSubscriptions,
                             totalMonthly: store.totalMonthlySpending,
                             loadError: store.loadError,
                             recentlyModifiedId: store.recentlyModifiedId,
@@ -53,13 +54,16 @@ struct HomeView: View {
                                     showingDeleteAlert = true
                                 }
                             },
+                            onReactivate: { id in
+                                store.reactivateSubscription(id: id)
+                            },
                             onRetry: {
                                 store.retryLoad()
                             }
                         )
                         .padding(16)
                         .padding(.bottom, 100)
-                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.subscriptions.count)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: store.activeSubscriptions.count)
                     }
                 }
                 .scrollPosition($scrollPosition)
@@ -142,13 +146,13 @@ struct HomeView: View {
                 }
             }
             .sheet(isPresented: $showingChartsSheet) {
-                ChartsView(subscriptions: store.subscriptions)
+                ChartsView(subscriptions: store.activeSubscriptions)
             }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsView()
             }
             .sheet(isPresented: $showingCalendarSheet) {
-                CalendarView(subscriptions: store.subscriptions)
+                CalendarView(subscriptions: store.activeSubscriptions)
             }
             .onChange(of: store.saveError) { _, newValue in
                 showingSaveErrorAlert = newValue != nil

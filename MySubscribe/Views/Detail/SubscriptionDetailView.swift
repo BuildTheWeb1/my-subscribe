@@ -21,6 +21,7 @@ struct SubscriptionDetailView: View {
     @State private var startDate: Date
     @State private var isEditing = false
     @State private var showingDeleteAlert = false
+    @State private var showingStopSheet = false
     
     init(store: SubscriptionStore, subscription: Subscription) {
         self.store = store
@@ -92,24 +93,48 @@ struct SubscriptionDetailView: View {
                 detailRow(title: String(localized: "Yearly Cost"), value: currencyService.format(subscription.yearlyAmount))
                 detailRow(title: String(localized: "Paid So Far"), value: currencyService.format(subscription.paidSoFar))
                 detailRow(title: String(localized: "Started"), value: subscription.startDate.formatted(date: .abbreviated, time: .omitted))
+                if let endDate = subscription.endDate {
+                    detailRow(
+                        title: String(localized: "Cancelled On"),
+                        value: endDate.formatted(date: .abbreviated, time: .omitted)
+                    )
+                }
             }
             .padding(20)
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal)
-            
+
             Spacer()
-            
-            Button(role: .destructive) {
-                showingDeleteAlert = true
-            } label: {
-                Label(String(localized: "Delete Subscription"), systemImage: "trash")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(hex: "F53722"))
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+
+            VStack(spacing: 12) {
+                if subscription.isActive {
+                    Button {
+                        showingStopSheet = true
+                    } label: {
+                        Label(String(localized: "Stop Subscription"), systemImage: "stop.circle.fill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(hex: "F59E0B"))
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                    }
+                } else {
+                    reactivateBanner
+                }
+
+                Button(role: .destructive) {
+                    showingDeleteAlert = true
+                } label: {
+                    Label(String(localized: "Delete Subscription"), systemImage: "trash")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(hex: "F53722"))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                }
             }
             .padding(.horizontal)
             .padding(.bottom)
@@ -122,11 +147,19 @@ struct SubscriptionDetailView: View {
                     dismiss()
                 }
             }
-            
+
             ToolbarItem(placement: .topBarTrailing) {
-                Button(String(localized: "Edit")) {
-                    isEditing = true
+                if subscription.isActive {
+                    Button(String(localized: "Edit")) {
+                        isEditing = true
+                    }
                 }
+            }
+        }
+        .sheet(isPresented: $showingStopSheet) {
+            StopSubscriptionSheet(subscriptionName: subscription.name) { endDate in
+                store.stopSubscription(id: subscription.id, endDate: endDate)
+                dismiss()
             }
         }
         .alert(String(localized: "Delete Subscription"), isPresented: $showingDeleteAlert) {
@@ -136,8 +169,35 @@ struct SubscriptionDetailView: View {
                 dismiss()
             }
         } message: {
-            Text(String(localized: "Hey! You're still paying for this subscription, make sure you cancel it from your provider account."))
+            Text(String(localized: "Are you sure you want to permanently delete \(subscription.name)?"))
         }
+    }
+
+    private var reactivateBanner: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Label(String(localized: "Cancelled"), systemImage: "stop.circle.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color(hex: "F59E0B"))
+                if let endDate = subscription.endDate {
+                    Text(String(localized: "on \(endDate.formatted(date: .abbreviated, time: .omitted))"))
+                        .font(.caption)
+                        .foregroundStyle(AppColors.textSecondary)
+                }
+            }
+            Spacer()
+            Button(String(localized: "Reactivate")) {
+                store.reactivateSubscription(id: subscription.id)
+                dismiss()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(AppColors.categoryFitness)
+        }
+        .padding()
+        .background(AppColors.categoryFitness.opacity(0.12))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(String(localized: "Cancelled subscription. Tap Reactivate to resume."))
     }
     
     private func detailRow(title: String, value: String) -> some View {
@@ -241,7 +301,9 @@ struct SubscriptionDetailView: View {
             category: category,
             startDate: startDate,
             createdAt: subscription.createdAt,
-            updatedAt: Date()
+            updatedAt: Date(),
+            status: subscription.status,
+            endDate: subscription.endDate
         )
         
         store.updateSubscription(updated)

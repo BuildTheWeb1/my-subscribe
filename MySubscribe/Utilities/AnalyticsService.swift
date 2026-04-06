@@ -40,6 +40,8 @@ enum AnalyticsEvent: String {
     case subscriptionAdded = "subscription_added"
     case subscriptionDeleted = "subscription_deleted"
     case subscriptionEdited = "subscription_edited"
+    case subscriptionStopped = "subscription_stopped"
+    case subscriptionReactivated = "subscription_reactivated"
     case addSheetOpened = "add_sheet_opened"
     case detailViewOpened = "detail_view_opened"
 }
